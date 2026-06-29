@@ -1,0 +1,129 @@
+.chord-diagram-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.chord-diagram-wrapper.selected .chord-diagram-svg {
+  filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.8));
+}
+
+.chord-diagram-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+}
+
+.chord-diagram-label.large {
+  font-size: 1.1rem;
+  color: white;
+}
+
+.chord-diagram-label.difficulty {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+}
+
+.chord-description {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  max-width: 240px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* ChordList */
+.chord-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.chord-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chord-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.chord-list::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.4);
+  border-radius: 2px;
+}
+
+.chord-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chord-group-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(102, 126, 234, 0.8);
+  font-weight: 700;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.chord-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.chord-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 4px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.chord-card:hover {
+  background: rgba(102, 126, 234, 0.12);
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateY(-1px);
+}
+
+.chord-card.selected {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.6);
+  box-shadow: 0 0 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Large chord display */
+.chord-display-large {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.chord-display-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+}
+
+.chord-display-meta {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: capitalize;
+}

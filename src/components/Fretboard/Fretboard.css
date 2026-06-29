@@ -1,0 +1,43 @@
+.fretboard-container {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.fretboard-title {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.fretboard-svg {
+  display: block;
+  min-width: 400px;
+}
+
+/* String animation on pluck */
+.string-line {
+  transition: stroke 0.1s;
+}
+
+.string-line.active {
+  stroke: #f5a623 !important;
+  animation: stringPulse 1.5s ease-out forwards;
+}
+
+@keyframes stringPulse {
+  0% { opacity: 1; stroke: #f5a623; }
+  30% { opacity: 0.6; stroke: #f5a623; }
+  60% { opacity: 1; stroke: #f5a623; }
+  100% { opacity: 0.4; stroke: #888; }
+}
+
+/* Placement mode */
+.fretboard-container.placement-mode {
+  border-color: rgba(245, 166, 35, 0.4);
+  background: rgba(245, 166, 35, 0.05);
+}
