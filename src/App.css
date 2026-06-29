@@ -75,6 +75,8 @@
 .chord-list-panel {
   width: 220px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .center-panel {

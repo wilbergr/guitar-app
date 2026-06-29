@@ -16,42 +16,63 @@ function midiToNoteName(midi) {
   return NOTE_NAMES[noteIndex] + octave;
 }
 
+const SAMPLE_SETS = {
+  guitar: {
+    baseUrl: 'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-acoustic/',
+    urls: { A2: 'A2.mp3', A3: 'A3.mp3', A4: 'A4.mp3', E2: 'E2.mp3', E3: 'E3.mp3', E4: 'E4.mp3', B3: 'B3.mp3', D4: 'D4.mp3' },
+  },
+  bass: {
+    baseUrl: 'https://nbrosowsky.github.io/tonejs-instruments/samples/bass-electric/',
+    urls: { A1: 'A1.mp3', A2: 'A2.mp3', E1: 'E1.mp3', E2: 'E2.mp3', G1: 'G1.mp3', D2: 'D2.mp3' },
+  },
+  ukulele: {
+    baseUrl: 'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-nylon/',
+    urls: { A2: 'A2.mp3', A3: 'A3.mp3', E3: 'E3.mp3', C4: 'C4.mp3', G4: 'G4.mp3' },
+  },
+};
+
 class GuitarAudioService {
   constructor() {
-    this.synths = [];
+    this.sampler = null;
     this.reverb = null;
     this.isInitialized = false;
-    this._currentStringCount = 0;
+    this.isLoaded = false;
+    this._currentInstrument = null;
   }
 
-  async init(stringCount = 6) {
-    if (this.isInitialized && this._currentStringCount === stringCount) return true;
+  async init(instrument = 'guitar') {
+    if (this.isInitialized && this._currentInstrument === instrument) return true;
 
-    this.synths.forEach((s) => s.dispose());
+    if (this.sampler) this.sampler.dispose();
     if (this.reverb) this.reverb.dispose();
+
+    this.isLoaded = false;
 
     await Tone.start();
 
     this.reverb = new Tone.Reverb({ decay: 1.8, wet: 0.15 }).toDestination();
-    const isBass = stringCount === 4;
 
-    this.synths = Array.from({ length: stringCount }, () =>
-      new Tone.PluckSynth({
-        attackNoise: 1.2,
-        dampening: isBass ? 3000 : 4500,
-        resonance: 0.75,
-      }).connect(this.reverb)
-    );
+    const sampleSet = SAMPLE_SETS[instrument] || SAMPLE_SETS.guitar;
+
+    this.sampler = new Tone.Sampler({
+      urls: sampleSet.urls,
+      baseUrl: sampleSet.baseUrl,
+    }).connect(this.reverb);
 
     this.isInitialized = true;
-    this._currentStringCount = stringCount;
+    this._currentInstrument = instrument;
+
+    Tone.loaded().then(() => {
+      this.isLoaded = true;
+    });
+
     return true;
   }
 
   playString(stringIndex, noteName) {
-    if (!this.isInitialized || !this.synths[stringIndex]) return;
+    if (!this.isInitialized || !this.isLoaded || !this.sampler) return;
     try {
-      this.synths[stringIndex].triggerAttack(noteName);
+      this.sampler.triggerAttackRelease(noteName, '8n');
     } catch {
       // Ignore out-of-range notes silently
     }
@@ -81,15 +102,16 @@ class GuitarAudioService {
   }
 
   stopAll() {
-    // PluckSynth notes decay naturally
+    if (this.sampler) this.sampler.releaseAll();
   }
 
   dispose() {
-    this.synths.forEach((s) => s.dispose());
+    if (this.sampler) this.sampler.dispose();
     if (this.reverb) this.reverb.dispose();
-    this.synths = [];
+    this.sampler = null;
     this.isInitialized = false;
-    this._currentStringCount = 0;
+    this.isLoaded = false;
+    this._currentInstrument = null;
   }
 }
 

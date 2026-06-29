@@ -16,16 +16,14 @@ export default function App() {
   const [audioReady, setAudioReady] = useState(false);
 
   useEffect(() => {
-    const tuning = TUNINGS[instrument];
     if (audioReady) {
-      audioService.init(tuning.stringCount);
+      audioService.init(instrument);
     }
   }, [instrument, audioReady]);
 
   const ensureAudioReady = useCallback(async () => {
     if (!audioReady) {
-      const tuning = TUNINGS[instrument];
-      await audioService.init(tuning.stringCount);
+      await audioService.init(instrument);
       setAudioReady(true);
     }
   }, [audioReady, instrument]);
