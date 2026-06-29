@@ -23,11 +23,11 @@ const SAMPLE_SETS = {
   },
   bass: {
     baseUrl: 'https://nbrosowsky.github.io/tonejs-instruments/samples/bass-electric/',
-    urls: { A1: 'A1.mp3', A2: 'A2.mp3', E1: 'E1.mp3', E2: 'E2.mp3', G1: 'G1.mp3', D2: 'D2.mp3' },
+    urls: { E1: 'E1.mp3', E2: 'E2.mp3', E3: 'E3.mp3', G1: 'G1.mp3', G2: 'G2.mp3', As1: 'As1.mp3', As2: 'As2.mp3', Cs2: 'Cs2.mp3' },
   },
   ukulele: {
     baseUrl: 'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-nylon/',
-    urls: { A2: 'A2.mp3', A3: 'A3.mp3', E3: 'E3.mp3', C4: 'C4.mp3', G4: 'G4.mp3' },
+    urls: { A2: 'A2.mp3', A3: 'A3.mp3', A4: 'A4.mp3', B2: 'B2.mp3', D2: 'D2.mp3', E2: 'E2.mp3', E3: 'E3.mp3', E4: 'E4.mp3', Fs3: 'Fs3.mp3', G3: 'G3.mp3' },
   },
 };
 
