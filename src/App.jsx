@@ -38,6 +38,7 @@ export default function App() {
 
   const handleChordSelect = useCallback(async (chord) => {
     setSelectedChord(chord);
+    setPressedFrets(new Map());
     await ensureAudioReady();
     const tuning = TUNINGS[chord.instrument];
     audioService.playChord(chord, tuning.notes, 'down');
@@ -47,7 +48,6 @@ export default function App() {
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
 
-    // Read current state before updating to decide play/remove behavior
     const isRemoving = pressedFrets.get(stringIndex) === fret;
 
     setPressedFrets((prev) => {
@@ -55,7 +55,6 @@ export default function App() {
       if (next.get(stringIndex) === fret) {
         next.delete(stringIndex);
       } else {
-        // Replace any existing press on this string with the new absolute fret
         next.set(stringIndex, fret);
       }
       return next;
@@ -83,8 +82,18 @@ export default function App() {
     if (!selectedChord) return;
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
-    audioService.playChord(selectedChord, tuning.notes, 'down');
-  }, [selectedChord, ensureAudioReady, instrument]);
+    if (pressedFrets.size > 0) {
+      const stringCount = tuning.stringCount;
+      for (let si = 0; si < stringCount; si++) {
+        const chordFret = selectedChord.strings[si];
+        if (chordFret === -1) continue;
+        const fret = pressedFrets.has(si) ? pressedFrets.get(si) : chordFret;
+        setTimeout(() => audioService.playNote(instrument, si, fret, tuning.notes), si * 50);
+      }
+    } else {
+      audioService.playChord(selectedChord, tuning.notes, 'down');
+    }
+  }, [selectedChord, pressedFrets, ensureAudioReady, instrument]);
 
   const handleStrumPressedFrets = useCallback(async () => {
     if (pressedFrets.size === 0) return;
