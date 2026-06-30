@@ -25,8 +25,9 @@ export default function GuitarString({
   const stringThickness = 1 + ((stringCount - 1 - stringIndex) / (stringCount - 1)) * 2;
   const totalFrets = fretXPositions.length - 1;
 
-  // Determine the dot to show from chord data
-  const showChordDot = selectedFret !== undefined && selectedFret > 0;
+  // If the user has pressed any fret on this string, it overrides chord data entirely.
+  const hasUserPress = pressedFret !== undefined;
+  const showChordDot = !hasUserPress && selectedFret !== undefined && selectedFret > 0;
   const dotFretIndex = showChordDot ? selectedFret - startFret : -1;
 
   return (
@@ -66,7 +67,7 @@ export default function GuitarString({
             const color = FINGER_COLORS[fingerNumber] || FINGER_COLORS[0];
             dotColor = color;
             dotLabel = fingerNumber ? String(fingerNumber) : null;
-          } else if (isBarreString && barreFret !== undefined && barreFret - startFret === fi) {
+          } else if (!hasUserPress && isBarreString && barreFret !== undefined && barreFret - startFret === fi) {
             dotColor = FINGER_COLORS[1];
             dotLabel = '1';
           }
