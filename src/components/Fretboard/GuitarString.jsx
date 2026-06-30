@@ -15,6 +15,7 @@ export default function GuitarString({
   barreFret,      // fret of the barre if applicable
   startFret,      // first fret visible in diagram
   onPluck,        // (stringIndex, fret) => void
+  pressedFret,    // user-pressed fret in learn mode (absolute fret number)
   // Placement mode
   placementMode,
   placedFret,     // user-placed value
@@ -50,6 +51,7 @@ export default function GuitarString({
 
         let dotColor = null;
         let dotLabel = null;
+        let pressedDotHere = false;
 
         if (placementMode) {
           if (placedFret === actualFret) {
@@ -59,13 +61,19 @@ export default function GuitarString({
           if (correctFret !== undefined && correctFret === actualFret && placedFret !== actualFret) {
             dotColor = 'rgba(34,197,94,0.7)';
           }
-        } else if (dotFretIndex === fi) {
-          const color = FINGER_COLORS[fingerNumber] || FINGER_COLORS[0];
-          dotColor = color;
-          dotLabel = fingerNumber ? String(fingerNumber) : null;
-        } else if (isBarreString && barreFret !== undefined && barreFret - startFret === fi) {
-          dotColor = FINGER_COLORS[1];
-          dotLabel = '1';
+        } else {
+          if (dotFretIndex === fi) {
+            const color = FINGER_COLORS[fingerNumber] || FINGER_COLORS[0];
+            dotColor = color;
+            dotLabel = fingerNumber ? String(fingerNumber) : null;
+          } else if (isBarreString && barreFret !== undefined && barreFret - startFret === fi) {
+            dotColor = FINGER_COLORS[1];
+            dotLabel = '1';
+          }
+          // User-pressed fret: purple dot, replaces chord dot if at same position
+          if (pressedFret !== undefined && pressedFret === actualFret) {
+            pressedDotHere = true;
+          }
         }
 
         return (
@@ -85,10 +93,10 @@ export default function GuitarString({
                 }
               }}
             />
-            {dotColor && (
+            {dotColor && !pressedDotHere && (
               <circle cx={midX} cy={y} r={9} fill={dotColor} opacity={0.9} />
             )}
-            {dotLabel && (
+            {dotLabel && !pressedDotHere && (
               <text
                 x={midX}
                 y={y + 4}
@@ -100,6 +108,9 @@ export default function GuitarString({
               >
                 {dotLabel}
               </text>
+            )}
+            {pressedDotHere && (
+              <circle cx={midX} cy={y} r={9} fill="#a78bfa" opacity={0.95} />
             )}
           </g>
         );

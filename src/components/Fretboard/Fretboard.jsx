@@ -19,6 +19,7 @@ export default function Fretboard({
   selectedChord,
   activeStrings,
   onStringPluck,
+  pressedFrets,
   // Placement mode props
   placementMode = false,
   placedFingers,
@@ -160,6 +161,8 @@ export default function Fretboard({
           // Placement mode: get user placed value
           const placedFret = placedFingers ? placedFingers.get(si) : undefined;
           const correctFret = correctFingers ? correctFingers.get(si) : undefined;
+          // Interactive pressed fret (learn mode)
+          const pressedFret = pressedFrets ? pressedFrets.get(si) : undefined;
 
           return (
             <g key={si}>
@@ -200,6 +203,7 @@ export default function Fretboard({
                 barreFret={barreFret}
                 startFret={startFret}
                 onPluck={onStringPluck}
+                pressedFret={pressedFret}
                 placementMode={placementMode}
                 placedFret={placedFret}
                 onPlace={onFingerPlace}

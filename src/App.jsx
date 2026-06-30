@@ -12,6 +12,7 @@ export default function App() {
   const [instrument, setInstrument] = useState('guitar');
   const [selectedChord, setSelectedChord] = useState(null);
   const [activeStrings, setActiveStrings] = useState(new Set());
+  const [pressedFrets, setPressedFrets] = useState(new Map());
   const [appMode, setAppMode] = useState('learn');
   const [audioReady, setAudioReady] = useState(false);
 
@@ -32,6 +33,7 @@ export default function App() {
     setInstrument(type);
     setSelectedChord(null);
     setActiveStrings(new Set());
+    setPressedFrets(new Map());
   }, []);
 
   const handleChordSelect = useCallback(async (chord) => {
@@ -41,24 +43,41 @@ export default function App() {
     audioService.playChord(chord, tuning.notes, 'down');
   }, [ensureAudioReady]);
 
-  const handleStringPluck = useCallback(async (stringIndex, fret) => {
+  const handleFretPress = useCallback(async (stringIndex, fret) => {
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
-    audioService.playNote(instrument, stringIndex, fret, tuning.notes);
 
-    setActiveStrings((prev) => {
-      const next = new Set(prev);
-      next.add(stringIndex);
+    // Read current state before updating to decide play/remove behavior
+    const isRemoving = pressedFrets.get(stringIndex) === fret;
+
+    setPressedFrets((prev) => {
+      const next = new Map(prev);
+      if (next.get(stringIndex) === fret) {
+        next.delete(stringIndex);
+      } else {
+        // Replace any existing press on this string with the new absolute fret
+        next.set(stringIndex, fret);
+      }
       return next;
     });
-    setTimeout(() => {
+
+    // Play the tapped fret — absolute pitch: openNote + fretNumber semitones
+    if (!isRemoving) {
+      audioService.playNote(instrument, stringIndex, fret, tuning.notes);
       setActiveStrings((prev) => {
         const next = new Set(prev);
-        next.delete(stringIndex);
+        next.add(stringIndex);
         return next;
       });
-    }, 1500);
-  }, [ensureAudioReady, instrument]);
+      setTimeout(() => {
+        setActiveStrings((prev) => {
+          const next = new Set(prev);
+          next.delete(stringIndex);
+          return next;
+        });
+      }, 1500);
+    }
+  }, [ensureAudioReady, instrument, pressedFrets]);
 
   const handleStrumChord = useCallback(async () => {
     if (!selectedChord) return;
@@ -66,6 +85,19 @@ export default function App() {
     const tuning = TUNINGS[instrument];
     audioService.playChord(selectedChord, tuning.notes, 'down');
   }, [selectedChord, ensureAudioReady, instrument]);
+
+  const handleStrumPressedFrets = useCallback(async () => {
+    if (pressedFrets.size === 0) return;
+    await ensureAudioReady();
+    const tuning = TUNINGS[instrument];
+    const stringCount = tuning.stringCount;
+    for (let si = 0; si < stringCount; si++) {
+      const fret = pressedFrets.get(si) ?? 0;
+      setTimeout(() => {
+        audioService.playNote(instrument, si, fret, tuning.notes);
+      }, si * 50);
+    }
+  }, [pressedFrets, ensureAudioReady, instrument]);
 
   return (
     <div className="app">
@@ -113,9 +145,13 @@ export default function App() {
                     🎵 Strum Chord
                   </button>
                 </>
+              ) : pressedFrets.size > 0 ? (
+                <button className="strum-btn" onClick={handleStrumPressedFrets}>
+                  🎵 Strum
+                </button>
               ) : (
                 <div className="no-chord-hint">
-                  Select a chord from the list to see its fingering
+                  Select a chord or tap the fretboard to press frets
                 </div>
               )}
 
@@ -123,7 +159,8 @@ export default function App() {
                 instrument={instrument}
                 selectedChord={selectedChord}
                 activeStrings={activeStrings}
-                onStringPluck={handleStringPluck}
+                onStringPluck={handleFretPress}
+                pressedFrets={pressedFrets}
               />
             </div>
           </div>
