@@ -20,6 +20,9 @@ export default function Fretboard({
   activeStrings,
   onStringPluck,
   pressedFrets,
+  editMode = true,
+  onEditModeToggle,
+  onPlayString,
   // Placement mode props
   placementMode = false,
   placedFingers,
@@ -47,10 +50,24 @@ export default function Fretboard({
       <div className="fretboard-title">
         {placementMode ? 'Place finger positions on fretboard' : 'Interactive Fretboard'}
       </div>
+      {!placementMode && (
+        <div className="fretboard-mode-toggle">
+          <button
+            className={`fretboard-mode-btn${editMode ? ' active' : ''}`}
+            onClick={onEditModeToggle}
+          >
+            Edit
+          </button>
+          <button
+            className={`fretboard-mode-btn${!editMode ? ' active' : ''}`}
+            onClick={onEditModeToggle}
+          >
+            Play
+          </button>
+        </div>
+      )}
       <svg
         className="fretboard-svg"
-        width={svgWidth}
-        height={svgHeight}
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
       >
         {/* Nut */}
@@ -204,6 +221,8 @@ export default function Fretboard({
                 startFret={startFret}
                 onPluck={onStringPluck}
                 pressedFret={pressedFret}
+                editMode={editMode}
+                onPlayString={onPlayString}
                 placementMode={placementMode}
                 placedFret={placedFret}
                 onPlace={onFingerPlace}

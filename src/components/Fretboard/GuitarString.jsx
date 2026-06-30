@@ -14,8 +14,10 @@ export default function GuitarString({
   isBarreString,  // this string is covered by barre
   barreFret,      // fret of the barre if applicable
   startFret,      // first fret visible in diagram
-  onPluck,        // (stringIndex, fret) => void
+  onPluck,        // (stringIndex, fret) => void — edit mode
   pressedFret,    // user-pressed fret in learn mode (absolute fret number)
+  editMode = true,
+  onPlayString,   // (stringIndex) => void — play mode
   // Placement mode
   placementMode,
   placedFret,     // user-placed value
@@ -89,8 +91,10 @@ export default function GuitarString({
               onClick={() => {
                 if (placementMode) {
                   onPlace && onPlace(stringIndex, actualFret);
-                } else {
+                } else if (editMode) {
                   onPluck && onPluck(stringIndex, actualFret);
+                } else {
+                  onPlayString && onPlayString(stringIndex);
                 }
               }}
             />

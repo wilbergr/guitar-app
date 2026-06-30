@@ -15,6 +15,7 @@ export default function App() {
   const [pressedFrets, setPressedFrets] = useState(new Map());
   const [appMode, setAppMode] = useState('learn');
   const [audioReady, setAudioReady] = useState(false);
+  const [editMode, setEditMode] = useState(true);
 
   useEffect(() => {
     if (audioReady) {
@@ -45,10 +46,10 @@ export default function App() {
   }, [ensureAudioReady]);
 
   const handleFretPress = useCallback(async (stringIndex, fret) => {
+    const isRemoving = pressedFrets.get(stringIndex) === fret;
+
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
-
-    const isRemoving = pressedFrets.get(stringIndex) === fret;
 
     setPressedFrets((prev) => {
       const next = new Map(prev);
@@ -77,6 +78,20 @@ export default function App() {
       }, 1500);
     }
   }, [ensureAudioReady, instrument, pressedFrets]);
+
+  const handlePlayString = useCallback(async (stringIndex) => {
+    await ensureAudioReady();
+    const tuning = TUNINGS[instrument];
+    const fret = pressedFrets.has(stringIndex)
+      ? pressedFrets.get(stringIndex)
+      : selectedChord?.strings[stringIndex];
+    if (fret === undefined || fret === -1) return;
+    audioService.playNote(instrument, stringIndex, fret, tuning.notes);
+    setActiveStrings((prev) => { const next = new Set(prev); next.add(stringIndex); return next; });
+    setTimeout(() => {
+      setActiveStrings((prev) => { const next = new Set(prev); next.delete(stringIndex); return next; });
+    }, 1500);
+  }, [ensureAudioReady, instrument, pressedFrets, selectedChord]);
 
   const handleStrumChord = useCallback(async () => {
     if (!selectedChord) return;
@@ -170,6 +185,9 @@ export default function App() {
                 activeStrings={activeStrings}
                 onStringPluck={handleFretPress}
                 pressedFrets={pressedFrets}
+                editMode={editMode}
+                onEditModeToggle={() => setEditMode((m) => !m)}
+                onPlayString={handlePlayString}
               />
             </div>
           </div>
