@@ -1,6 +1,5 @@
 .app {
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -56,9 +55,6 @@
 }
 
 .app-content {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   padding: 16px;
@@ -71,15 +67,12 @@
 .main-layout {
   display: flex;
   gap: 16px;
-  flex: 1;
-  min-height: 0;
+  align-items: flex-start;
 }
 
 .chord-list-panel {
   width: 220px;
   flex-shrink: 0;
-  min-height: 0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -126,23 +119,21 @@
 }
 
 @media (max-width: 768px) {
-  .app {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
-  }
-
-  .app-content {
-    overflow: visible;
-  }
-
   .main-layout {
     flex-direction: column;
   }
 
   .chord-list-panel {
     width: 100%;
-    overflow: visible;
-    max-height: 320px;
+  }
+
+  .instrument-btn {
+    min-height: 44px;
+  }
+
+  .challenge-toggle-btn,
+  .strum-btn {
+    min-height: 44px;
+    padding: 10px 18px;
   }
 }
