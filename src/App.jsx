@@ -130,7 +130,7 @@ export default function App() {
         <div className="header-controls">
           <InstrumentSelector instrument={instrument} onInstrumentChange={handleInstrumentChange} />
           <button
-            className={`challenge-toggle-btn${appMode === 'challenge' ? ' active' : ''}`}
+            className={`btn btn-primary challenge-toggle-btn${appMode === 'challenge' ? ' active' : ''}`}
             onClick={() => setAppMode(appMode === 'learn' ? 'challenge' : 'learn')}
           >
             {appMode === 'learn' ? '🎯 Challenge' : '📚 Learn'}
@@ -165,12 +165,12 @@ export default function App() {
               {selectedChord ? (
                 <>
                   <ChordDiagram chord={selectedChord} isSelected size="large" />
-                  <button className="strum-btn" onClick={handleStrumChord}>
+                  <button className="btn btn-primary strum-btn" onClick={handleStrumChord}>
                     🎵 Strum Chord
                   </button>
                 </>
               ) : pressedFrets.size > 0 ? (
-                <button className="strum-btn" onClick={handleStrumPressedFrets}>
+                <button className="btn btn-primary strum-btn" onClick={handleStrumPressedFrets}>
                   🎵 Strum
                 </button>
               ) : (

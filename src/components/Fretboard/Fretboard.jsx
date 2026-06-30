@@ -53,13 +53,13 @@ export default function Fretboard({
       {!placementMode && (
         <div className="fretboard-mode-toggle">
           <button
-            className={`fretboard-mode-btn${editMode ? ' active' : ''}`}
+            className={`btn fretboard-mode-btn ${editMode ? 'btn-primary active' : 'btn-ghost'}`}
             onClick={onEditModeToggle}
           >
             Edit
           </button>
           <button
-            className={`fretboard-mode-btn${!editMode ? ' active' : ''}`}
+            className={`btn fretboard-mode-btn ${!editMode ? 'btn-primary active' : 'btn-ghost'}`}
             onClick={onEditModeToggle}
           >
             Play
@@ -134,7 +134,7 @@ export default function Fretboard({
               y={svgHeight - 8}
               textAnchor="middle"
               fontSize={11}
-              fill="rgba(255,255,255,0.3)"
+              style={{ fontFamily: 'var(--font-mono)', fill: 'var(--text-faint)' }}
             >
               {fret}
             </text>
@@ -189,8 +189,7 @@ export default function Fretboard({
                 y={y + 4}
                 textAnchor="end"
                 fontSize={11}
-                fill="rgba(255,255,255,0.5)"
-                fontFamily="monospace"
+                style={{ fontFamily: 'var(--font-mono)', fill: 'var(--text-muted)' }}
               >
                 {strings[si]}
               </text>

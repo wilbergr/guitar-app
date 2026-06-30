@@ -1,8 +1,8 @@
 .fretboard-container {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: var(--space-4);
   overflow-x: auto;
   overflow-y: hidden;
   width: 100%;
@@ -11,10 +11,10 @@
 
 .fretboard-title {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .fretboard-svg {
@@ -26,31 +26,18 @@
 
 .fretboard-mode-toggle {
   display: flex;
-  gap: 2px;
-  margin-bottom: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
-  padding: 3px;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1);
   width: fit-content;
 }
 
 .fretboard-mode-btn {
-  padding: 5px 16px;
-  border-radius: 17px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  min-height: 36px;
-  min-width: 60px;
-}
-
-.fretboard-mode-btn.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
 }
 
 /* String animation on pluck */
@@ -59,19 +46,24 @@
 }
 
 .string-line.active {
-  stroke: #f5a623 !important;
-  animation: stringPulse 1.5s ease-out forwards;
+  stroke: var(--accent) !important;
 }
 
-@keyframes stringPulse {
-  0% { opacity: 1; stroke: #f5a623; }
-  30% { opacity: 0.6; stroke: #f5a623; }
-  60% { opacity: 1; stroke: #f5a623; }
-  100% { opacity: 0.4; stroke: #888; }
+@media (prefers-reduced-motion: no-preference) {
+  .string-line.active {
+    animation: stringPulse 1.5s ease-out forwards;
+  }
+
+  @keyframes stringPulse {
+    0% { opacity: 1; stroke: var(--accent); }
+    30% { opacity: 0.6; stroke: var(--accent); }
+    60% { opacity: 1; stroke: var(--accent); }
+    100% { opacity: 0.4; stroke: var(--text-faint); }
+  }
 }
 
 /* Placement mode */
 .fretboard-container.placement-mode {
-  border-color: rgba(245, 166, 35, 0.4);
-  background: rgba(245, 166, 35, 0.05);
+  border-color: var(--accent);
+  background: var(--accent-bg);
 }

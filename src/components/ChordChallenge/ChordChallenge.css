@@ -3,8 +3,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px;
-  gap: 20px;
+  padding: var(--space-5) var(--space-4);
+  gap: var(--space-5);
 }
 
 /* Mode select screen */
@@ -12,23 +12,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: var(--space-5);
   max-width: 600px;
   width: 100%;
-  padding: 32px 0;
+  padding: var(--space-6) 0;
 }
 
 .challenge-mode-select h2 {
   font-size: 1.8rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text);
   margin: 0;
 }
 
 .challenge-mode-select p {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted);
   text-align: center;
   margin: 0;
   font-size: 0.95rem;
@@ -38,74 +35,45 @@
 .challenge-type-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--space-4);
   width: 100%;
 }
 
 .challenge-type-card {
-  background: rgba(255, 255, 255, 0.06);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s;
-  color: white;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  color: var(--text);
 }
 
 .challenge-type-card:hover {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.5);
+  background: var(--surface-2);
+  border-color: var(--accent);
   transform: translateY(-2px);
 }
 
 .challenge-type-card h3 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   font-size: 1rem;
-  color: #a5b4fc;
+  color: var(--accent);
 }
 
 .challenge-type-card p {
   margin: 0;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted);
   text-align: left;
 }
 
 .mode-buttons {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.mode-btn {
-  padding: 12px 28px;
-  border-radius: 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.mode-btn.practice {
-  background: rgba(102, 126, 234, 0.2);
-  border: 2px solid rgba(102, 126, 234, 0.5);
-  color: #a5b4fc;
-}
-
-.mode-btn.practice:hover {
-  background: rgba(102, 126, 234, 0.35);
-}
-
-.mode-btn.timed {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border: 2px solid transparent;
-}
-
-.mode-btn.timed:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
 }
 
 /* Question screen */
@@ -115,29 +83,37 @@
   justify-content: space-between;
   width: 100%;
   max-width: 800px;
+  gap: var(--space-3);
 }
 
 .challenge-progress {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
 }
 
 .challenge-timer {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 1rem;
   font-weight: 700;
-  color: #f59e0b;
+  color: var(--warning);
   min-width: 60px;
   text-align: right;
 }
 
 .challenge-timer.urgent {
-  color: #ef4444;
-  animation: timerPulse 0.5s ease-in-out infinite alternate;
+  color: var(--danger);
 }
 
-@keyframes timerPulse {
-  from { opacity: 1; }
-  to { opacity: 0.5; }
+@media (prefers-reduced-motion: no-preference) {
+  .challenge-timer.urgent {
+    animation: timerPulse 0.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes timerPulse {
+    from { opacity: 1; }
+    to { opacity: 0.5; }
+  }
 }
 
 .challenge-question {
@@ -146,76 +122,73 @@
 
 .challenge-question h3 {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0 0 6px;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2);
   font-weight: 400;
 }
 
 .challenge-question .chord-name-big {
   font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--accent);
 }
 
 /* Diagram challenge options */
 .options-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: var(--space-4);
   width: 100%;
   max-width: 600px;
 }
 
 .option-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
 }
 
 .option-card:hover:not(.correct):not(.wrong) {
-  background: rgba(102, 126, 234, 0.12);
-  border-color: rgba(102, 126, 234, 0.4);
+  background: var(--surface-2);
+  border-color: var(--accent);
   transform: translateY(-2px);
 }
 
 .option-card.correct {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: #22c55e;
-  box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
+  background: rgba(74, 222, 128, 0.15);
+  border-color: var(--success);
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.3);
 }
 
 .option-card.wrong {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
+  background: rgba(248, 113, 113, 0.15);
+  border-color: var(--danger);
 }
 
 /* Placement challenge */
 .placement-controls {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .placement-hint {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
   text-align: center;
 }
 
 .string-toggle-row {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -224,75 +197,43 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .string-toggle span {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.toggle-btn {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
-  transition: all 0.15s;
+  color: var(--text-muted);
 }
 
 .toggle-btn.open-active {
-  background: rgba(110, 231, 183, 0.2);
-  border-color: #6ee7b7;
-  color: #6ee7b7;
+  background: rgba(74, 222, 128, 0.15);
+  border-color: var(--success);
+  color: var(--success);
 }
 
 .toggle-btn.mute-active {
-  background: rgba(248, 113, 113, 0.2);
-  border-color: #f87171;
-  color: #f87171;
-}
-
-.submit-btn {
-  padding: 10px 28px;
-  border-radius: 24px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  transition: all 0.2s;
-}
-
-.submit-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.submit-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
+  background: rgba(248, 113, 113, 0.15);
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .placement-feedback {
   font-size: 1rem;
   font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
 }
 
 .placement-feedback.correct {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-  border: 1px solid #22c55e;
+  background: rgba(74, 222, 128, 0.18);
+  color: var(--success);
+  border: 1px solid var(--success);
 }
 
 .placement-feedback.wrong {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 1px solid #ef4444;
+  background: rgba(248, 113, 113, 0.18);
+  color: var(--danger);
+  border: 1px solid var(--danger);
 }
 
 /* Results screen */
@@ -300,7 +241,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: var(--space-5);
   max-width: 500px;
   width: 100%;
   text-align: center;
@@ -309,17 +250,18 @@
 .results-screen h2 {
   font-size: 1.8rem;
   margin: 0;
-  color: white;
+  color: var(--text);
 }
 
 .results-summary {
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .result-stat {
@@ -330,80 +272,44 @@
 }
 
 .result-stat .label {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted);
 }
 
 .result-stat .value {
   font-weight: 700;
-  color: white;
+  color: var(--text);
 }
 
 .result-stat .value.pass {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .result-stat .value.fail {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .unlock-code {
-  background: rgba(102, 126, 234, 0.15);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 8px;
-  padding: 16px;
-  color: #a5b4fc;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  color: var(--accent);
   font-size: 0.9rem;
 }
 
 .unlock-code strong {
   display: block;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 1.2rem;
-  margin-top: 6px;
-  color: white;
+  margin-top: var(--space-2);
+  color: var(--text);
   letter-spacing: 2px;
 }
 
 .results-actions {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.result-btn {
-  padding: 10px 24px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.result-btn.primary {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-}
-
-.result-btn.secondary {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.result-btn:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
-}
-
-.back-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
-  padding: 6px 16px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
 }

@@ -83,11 +83,11 @@ export default function GuitarString({
           <g key={fi}>
             <rect
               x={x1}
-              y={y - 12}
+              y={y - 18}
               width={x2 - x1}
-              height={24}
+              height={36}
               fill="transparent"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
               onClick={() => {
                 if (placementMode) {
                   onPlace && onPlace(stringIndex, actualFret);

@@ -257,7 +257,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
               <p>See a chord name, place the finger positions on the fretboard.</p>
             </button>
           </div>
-          <button className="back-btn" onClick={onExit}>← Back to Learn</button>
+          <button className="btn btn-ghost back-btn" onClick={onExit}>← Back to Learn</button>
         </div>
       </div>
     );
@@ -270,14 +270,14 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
           <h2>{challengeType === 'diagram' ? '📊 Diagram Recognition' : '🎸 Fretboard Placement'}</h2>
           <p>Choose your mode:</p>
           <div className="mode-buttons">
-            <button className="mode-btn practice" onClick={() => startChallenge(true)}>
+            <button className="btn btn-secondary mode-btn practice" onClick={() => startChallenge(true)}>
               📚 Practice (no timer)
             </button>
-            <button className="mode-btn timed" onClick={() => startChallenge(false)}>
+            <button className="btn btn-primary mode-btn timed" onClick={() => startChallenge(false)}>
               ⏱ Challenge ({TOTAL_ROUNDS} rounds, {TIME_PER_ROUND}s each)
             </button>
           </div>
-          <button className="back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>← Back</button>
+          <button className="btn btn-ghost back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>← Back</button>
         </div>
       </div>
     );
@@ -320,13 +320,13 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
             </div>
           )}
           <div className="results-actions">
-            <button className="result-btn primary" onClick={() => startChallenge(!isPractice)}>
+            <button className="btn btn-primary result-btn primary" onClick={() => startChallenge(!isPractice)}>
               Try Again
             </button>
-            <button className="result-btn secondary" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>
+            <button className="btn btn-secondary result-btn secondary" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>
               Change Mode
             </button>
-            <button className="result-btn secondary" onClick={onExit}>
+            <button className="btn btn-secondary result-btn secondary" onClick={onExit}>
               Back to Learn
             </button>
           </div>
@@ -346,7 +346,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
             ? `Round ${round + 1} · Practice`
             : `Round ${round + 1} / ${TOTAL_ROUNDS}`}
         </div>
-        <button className="back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>
+        <button className="btn btn-ghost back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>
           ← Exit
         </button>
         {!isPractice && (
@@ -393,14 +393,14 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
               <div key={si} className="string-toggle">
                 <span>{name}</span>
                 <button
-                  className={`toggle-btn${placedFingers.get(si) === 0 ? ' open-active' : ''}`}
+                  className={`btn btn-icon btn-secondary toggle-btn${placedFingers.get(si) === 0 ? ' open-active' : ''}`}
                   onClick={() => handleOpenToggle(si)}
                   disabled={placementSubmitted}
                 >
                   ○
                 </button>
                 <button
-                  className={`toggle-btn${placedFingers.get(si) === -1 ? ' mute-active' : ''}`}
+                  className={`btn btn-icon btn-secondary toggle-btn${placedFingers.get(si) === -1 ? ' mute-active' : ''}`}
                   onClick={() => handleMuteToggle(si)}
                   disabled={placementSubmitted}
                 >
@@ -426,7 +426,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
               </div>
             ) : (
               <button
-                className="submit-btn"
+                className="btn btn-primary submit-btn"
                 onClick={handlePlacementSubmit}
               >
                 Check Answer

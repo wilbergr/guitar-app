@@ -12,7 +12,7 @@ export default function InstrumentSelector({ instrument, onInstrumentChange }) {
       {INSTRUMENTS.map((inst) => (
         <button
           key={inst.id}
-          className={`instrument-btn${instrument === inst.id ? ' active' : ''}`}
+          className={`btn instrument-btn ${instrument === inst.id ? 'btn-primary active' : 'btn-secondary'}`}
           onClick={() => onInstrumentChange(inst.id)}
           title={inst.label}
         >

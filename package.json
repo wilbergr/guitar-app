@@ -13,6 +13,8 @@
     "deploy": "gh-pages -d dist --dest guitar-app --add"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tone": "^15.0.4"
