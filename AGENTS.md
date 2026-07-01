@@ -8,6 +8,32 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 
 When resolving which fret to sound for a single string, an **absent** marker/chord entry means the **open string (fret 0)**, while `-1` means an **explicitly muted** string (stays silent). This convention is shared across `handlePlayString` (Play-mode pluck), `handleStrumPressedFrets` (`pressedFrets.get(si) ?? 0`), and `handleStrumChord`. Never treat `undefined` as "silent" — only `-1` mutes. The Strum button in the learn-view center panel is always visible (no chord + no markers strums the open strings).
 
+## SVG fret-cell click hit-testing (GuitarString.jsx)
+
+SVG has no z-index — paint order determines hit-testing. The transparent `.fret-cell`
+hit rect must be the **last** child painted in each fret `<g>` so it sits on top of the
+marker dots (chord/pressed/ripple circles + labels); otherwise a click landing on a dot
+hits the dot (which has no handler) instead of the cell, and the note never plays. As a
+belt-and-suspenders, all decorative markers carry `pointer-events: none` (`.fret-dot`,
+`.fret-cell-label`, `.fret-ripple` in Fretboard.css) so they never intercept a click even
+if paint order changes. Any new dot/label added inside a fret cell must either be painted
+before the hit rect or get `pointer-events: none`.
+
+## User dead/muted strings — a layer on top of chords (App.jsx)
+
+`mutedStrings` (a `Set` of string indices) is the user's Edit-mode dead-string layer, kept
+**separate** from `pressedFrets` so a mute survives independently of fret markers. It is the
+top-priority gate: `handlePlayString` early-returns on a muted string, and both strum
+handlers (`handleStrumPressedFrets`, `handleStrumChord`) `continue` past muted indices.
+`handleStrumChord` falls back to the per-string loop whenever `pressedFrets.size > 0` **or**
+`mutedStrings.size > 0` (so `audioService.playChord`, which ignores user mutes, isn't used
+when a mute is active). Fretting a string in Edit mode clears its mute (mutually exclusive
+states). `mutedStrings` is reset on instrument change and chord select, alongside
+`pressedFrets`. The nut glyph priority per string is: user-mute X > chord open/mute glyph >
+a faint "tap to mute" affordance circle (edit mode only). The mute toggle is a keyboard-
+operable SVG `role="button"` (`.mute-toggle`) with `aria-pressed`/`aria-label`, mirroring
+the fret-cell a11y pattern.
+
 ## Audio gating & transient UI (App.jsx)
 
 Audio needs a first user gesture. State is a tri-state `audioStatus` ('idle' → 'pending' → 'ready'); `audioReady` is derived (`=== 'ready'`). `ensureAudioReady()` early-returns while `'pending'` so concurrent taps don't spawn a second `Tone.start()`/sampler build. The learn-view banner renders an explicit **Enable sound** primary button (disabled + spinner while pending); it also still initializes on first chord/string tap. Two transient cues use the shared `components/Toast` (purely visual, `aria-hidden`): a "Sound enabled" success toast on ready, and a "board cleared" toast on instrument switch. Both are paired with `sr-only` `aria-live` regions in App.jsx for assistive-tech parity — the toasts themselves must stay `aria-hidden` to avoid double announcements. Toast auto-dismiss timers live in effects keyed on the toast state (timeout-only setState) — don't call setState synchronously in those effects (the `react-hooks` lint rule flags cascading renders).

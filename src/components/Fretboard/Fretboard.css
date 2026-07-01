@@ -76,8 +76,57 @@
   touch-action: manipulation;
 }
 
-.fret-cell-label {
+/* Dead/muted-string toggle hit zone (left of the nut). */
+.mute-toggle {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mute-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Decorative markers never intercept clicks — the transparent .fret-cell sits
+   on top and owns the pluck/toggle interaction. */
+.fret-cell-label,
+.fret-dot,
+.fret-ripple {
   pointer-events: none;
+}
+
+/* Concise Edit/Play helper under the segmented control. */
+.fretboard-mode-hint {
+  margin: calc(-1 * var(--space-1)) 0 var(--space-3);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Tap ripple: a quick expanding accent halo at the tapped fret so touch feels
+   responsive. Re-mounted per tap (React key) to restart the animation. */
+.fret-ripple {
+  fill: var(--accent);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fret-ripple {
+    animation: fretRipple 0.45s ease-out forwards;
+  }
+
+  @keyframes fretRipple {
+    0% { opacity: 0.55; transform: scale(0.35); }
+    100% { opacity: 0; transform: scale(1.8); }
+  }
+}
+
+/* Reduced motion: a brief static highlight instead of the expanding halo. */
+@media (prefers-reduced-motion: reduce) {
+  .fret-ripple {
+    opacity: 0.4;
+  }
 }
 
 /* String animation on pluck */

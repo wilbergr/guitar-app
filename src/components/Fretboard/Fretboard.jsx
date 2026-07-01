@@ -37,6 +37,8 @@ export default function Fretboard({
   activeStrings,
   onStringPluck,
   pressedFrets,
+  mutedStrings,
+  onToggleMute,
   editMode = true,
   onEditModeChange,
   onPlayString,
@@ -61,6 +63,13 @@ export default function Fretboard({
     e.preventDefault();
     onEditModeChange && onEditModeChange(MODE_SEGMENTS[nextIdx].val);
     segmentRefs.current[nextIdx]?.focus();
+  };
+
+  const handleMuteKeyDown = (e, si) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      onToggleMute && onToggleMute(si);
+    }
   };
 
   // SVG dimensions
@@ -184,6 +193,8 @@ export default function Fretboard({
 
           // Open/muted indicators above nut
           const nutX = fretXPositions[0] - 14;
+          const isMuted = !placementMode && mutedStrings ? mutedStrings.has(si) : false;
+          const muteInteractive = !placementMode && editMode;
 
           // Placement mode: get user placed value
           const placedFret = placedFingers ? placedFingers.get(si) : undefined;
@@ -199,18 +210,42 @@ export default function Fretboard({
                 y={y + 4}
                 textAnchor="end"
                 fontSize={11}
-                style={{ fontFamily: 'var(--font-mono)', fill: 'var(--text-muted)' }}
+                style={{ fontFamily: 'var(--font-mono)', fill: 'var(--text-muted)', pointerEvents: 'none' }}
               >
                 {strings[si]}
               </text>
 
-              {/* Open/muted indicator */}
-              {selectedChord && selectedFret !== undefined && (
+              {/* Nut indicator — priority: user dead/muted X > chord open/mute >
+                  a faint "tap to mute" affordance in edit mode. */}
+              {isMuted ? (
+                <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
+              ) : selectedChord && selectedFret !== undefined ? (
                 selectedFret === 0 ? (
-                  <Circle x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--success)' }} aria-hidden="true" />
+                  <Circle x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--success)', pointerEvents: 'none' }} aria-hidden="true" />
                 ) : selectedFret === -1 ? (
-                  <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)' }} aria-hidden="true" />
+                  <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
                 ) : null
+              ) : muteInteractive ? (
+                <Circle x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--text-faint)', opacity: 0.5, pointerEvents: 'none' }} aria-hidden="true" />
+              ) : null}
+
+              {/* Dead/muted-string toggle (edit mode). Transparent hit zone on
+                  top of the nut glyph; keyboard-operable like the fret cells. */}
+              {muteInteractive && (
+                <rect
+                  className="mute-toggle"
+                  x={nutX - 12}
+                  y={y - 12}
+                  width={24}
+                  height={24}
+                  fill="transparent"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${strings[si]} string, ${isMuted ? 'muted, tap to unmute' : 'tap to mute'}`}
+                  aria-pressed={isMuted}
+                  onClick={() => onToggleMute && onToggleMute(si)}
+                  onKeyDown={(e) => handleMuteKeyDown(e, si)}
+                />
               )}
 
               <GuitarString
@@ -296,6 +331,13 @@ export default function Fretboard({
             );
           })}
         </div>
+      )}
+      {!placementMode && (
+        <p className="fretboard-mode-hint">
+          {editMode
+            ? 'Edit: tap a fret to place a marker · tap a string’s circle to mute it (X)'
+            : 'Play: tap a fret — or a marked/open string — to pluck it'}
+        </p>
       )}
       {isPortrait ? (
         <div

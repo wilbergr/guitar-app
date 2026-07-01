@@ -1,6 +1,8 @@
 // Renders one string as a horizontal row of clickable fret cells in the SVG fretboard.
 // stringIndex 0 = thickest/lowest string.
 
+import { useEffect, useRef, useState } from 'react';
+
 const FINGER_COLORS = ['#888', '#ef4444', '#22c55e', '#3b82f6', '#f97316'];
 
 export default function GuitarString({
@@ -27,6 +29,18 @@ export default function GuitarString({
 }) {
   const stringThickness = 1 + ((stringCount - 1 - stringIndex) / (stringCount - 1)) * 2;
   const totalFrets = fretXPositions.length - 1;
+
+  // Transient ripple at the tapped fret cell so taps feel responsive (esp. on
+  // touch, where the string-pulse alone is easy to miss). `key` is bumped on
+  // every activation to re-mount the circle and restart its CSS animation.
+  const [flash, setFlash] = useState(null); // { fret, key } | null
+  const flashTimer = useRef(null);
+  useEffect(() => () => clearTimeout(flashTimer.current), []);
+  const triggerFlash = (fret) => {
+    setFlash((prev) => ({ fret, key: (prev?.key ?? 0) + 1 }));
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setFlash(null), 450);
+  };
 
   // If the user has pressed any fret on this string, it overrides chord data entirely.
   const hasUserPress = pressedFret !== undefined;
@@ -92,6 +106,7 @@ export default function GuitarString({
           : (!!editMode && pressedFret === actualFret);
 
         const activate = () => {
+          triggerFlash(actualFret);
           if (placementMode) {
             onPlace && onPlace(stringIndex, actualFret);
           } else if (editMode) {
@@ -101,8 +116,52 @@ export default function GuitarString({
           }
         };
 
+        // Decorative markers are drawn BEFORE the hit rect and made
+        // pointer-transparent so a click that lands on a dot still reaches the
+        // .fret-cell below it (previously the dot swallowed marker clicks).
         return (
           <g key={fi}>
+            {flash && flash.fret === actualFret && (
+              <circle
+                key={flash.key}
+                className="fret-ripple"
+                cx={midX}
+                cy={y}
+                r={12}
+              />
+            )}
+            {dotColor && !pressedDotHere && (
+              <circle className="fret-dot" cx={midX} cy={y} r={9} fill={dotColor} opacity={0.9} />
+            )}
+            {dotLabel && !pressedDotHere && (
+              <text
+                className="fret-cell-label"
+                x={midX}
+                y={y + 4}
+                textAnchor="middle"
+                fontSize={10}
+                fontWeight="bold"
+                fill="white"
+              >
+                {dotLabel}
+              </text>
+            )}
+            {isCorrectMarker && (
+              <circle
+                className="fret-dot"
+                cx={midX}
+                cy={y}
+                r={9}
+                fill="none"
+                stroke="#22c55e"
+                strokeWidth={2.5}
+                strokeDasharray="3 2"
+              />
+            )}
+            {pressedDotHere && (
+              <circle className="fret-dot" cx={midX} cy={y} r={9} fill="#a78bfa" opacity={0.95} />
+            )}
+            {/* Hit zone painted last so it is on top of the markers above. */}
             <rect
               className="fret-cell"
               x={x1}
@@ -122,36 +181,6 @@ export default function GuitarString({
                 }
               }}
             />
-            {dotColor && !pressedDotHere && (
-              <circle cx={midX} cy={y} r={9} fill={dotColor} opacity={0.9} />
-            )}
-            {dotLabel && !pressedDotHere && (
-              <text
-                className="fret-cell-label"
-                x={midX}
-                y={y + 4}
-                textAnchor="middle"
-                fontSize={10}
-                fontWeight="bold"
-                fill="white"
-              >
-                {dotLabel}
-              </text>
-            )}
-            {isCorrectMarker && (
-              <circle
-                cx={midX}
-                cy={y}
-                r={9}
-                fill="none"
-                stroke="#22c55e"
-                strokeWidth={2.5}
-                strokeDasharray="3 2"
-              />
-            )}
-            {pressedDotHere && (
-              <circle cx={midX} cy={y} r={9} fill="#a78bfa" opacity={0.95} />
-            )}
           </g>
         );
       })}

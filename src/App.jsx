@@ -21,6 +21,9 @@ export default function App() {
   const [selectedChord, setSelectedChord] = useState(null);
   const [activeStrings, setActiveStrings] = useState(new Set());
   const [pressedFrets, setPressedFrets] = useState(new Map());
+  // Strings the user has explicitly marked dead/muted (X) in Edit mode — kept
+  // separate from pressedFrets so a mute survives independent of fret markers.
+  const [mutedStrings, setMutedStrings] = useState(new Set());
   const [appMode, setAppMode] = useState('learn');
   // 'idle' → not started, 'pending' → first gesture is initializing, 'ready' → live.
   const [audioStatus, setAudioStatus] = useState('idle');
@@ -73,22 +76,43 @@ export default function App() {
     setSelectedChord(null);
     setActiveStrings(new Set());
     setPressedFrets(new Map());
+    setMutedStrings(new Set());
     setResetToast({ label: INSTRUMENT_LABELS[type] || type, id: type });
   }, [instrument]);
 
   const handleChordSelect = useCallback(async (chord) => {
     setSelectedChord(chord);
     setPressedFrets(new Map());
+    setMutedStrings(new Set());
     await ensureAudioReady();
     const tuning = TUNINGS[chord.instrument];
     audioService.playChord(chord, tuning.notes, 'down');
   }, [ensureAudioReady]);
+
+  const handleToggleMute = useCallback((stringIndex) => {
+    setMutedStrings((prev) => {
+      const next = new Set(prev);
+      if (next.has(stringIndex)) next.delete(stringIndex);
+      else next.add(stringIndex);
+      return next;
+    });
+  }, []);
 
   const handleFretPress = useCallback(async (stringIndex, fret) => {
     const isRemoving = pressedFrets.get(stringIndex) === fret;
 
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
+
+    // Fretting a string is incompatible with it being dead/muted — clear the
+    // mute so the newly placed note can sound.
+    if (!isRemoving && mutedStrings.has(stringIndex)) {
+      setMutedStrings((prev) => {
+        const next = new Set(prev);
+        next.delete(stringIndex);
+        return next;
+      });
+    }
 
     setPressedFrets((prev) => {
       const next = new Map(prev);
@@ -116,9 +140,12 @@ export default function App() {
         });
       }, 1500);
     }
-  }, [ensureAudioReady, instrument, pressedFrets]);
+  }, [ensureAudioReady, instrument, pressedFrets, mutedStrings]);
 
   const handlePlayString = useCallback(async (stringIndex) => {
+    // A user-muted (dead) string is damped — the pluck registers visually but
+    // produces no sound.
+    if (mutedStrings.has(stringIndex)) return;
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
     const derived = pressedFrets.has(stringIndex)
@@ -133,24 +160,27 @@ export default function App() {
     setTimeout(() => {
       setActiveStrings((prev) => { const next = new Set(prev); next.delete(stringIndex); return next; });
     }, 1500);
-  }, [ensureAudioReady, instrument, pressedFrets, selectedChord]);
+  }, [ensureAudioReady, instrument, pressedFrets, selectedChord, mutedStrings]);
 
   const handleStrumChord = useCallback(async () => {
     if (!selectedChord) return;
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
-    if (pressedFrets.size > 0) {
+    // Fall back to per-string strumming (which honors user overrides) whenever
+    // the user has pressed frets OR muted strings on top of the chord.
+    if (pressedFrets.size > 0 || mutedStrings.size > 0) {
       const stringCount = tuning.stringCount;
       for (let si = 0; si < stringCount; si++) {
+        if (mutedStrings.has(si)) continue;
         const chordFret = selectedChord.strings[si];
-        if (chordFret === -1) continue;
+        if (!pressedFrets.has(si) && chordFret === -1) continue;
         const fret = pressedFrets.has(si) ? pressedFrets.get(si) : chordFret;
         setTimeout(() => audioService.playNote(instrument, si, fret, tuning.notes), si * 50);
       }
     } else {
       audioService.playChord(selectedChord, tuning.notes, 'down');
     }
-  }, [selectedChord, pressedFrets, ensureAudioReady, instrument]);
+  }, [selectedChord, pressedFrets, mutedStrings, ensureAudioReady, instrument]);
 
   const handleStrumPressedFrets = useCallback(async () => {
     // With no markers, strum sounds the open strings (each defaults to fret 0).
@@ -158,12 +188,13 @@ export default function App() {
     const tuning = TUNINGS[instrument];
     const stringCount = tuning.stringCount;
     for (let si = 0; si < stringCount; si++) {
+      if (mutedStrings.has(si)) continue;
       const fret = pressedFrets.get(si) ?? 0;
       setTimeout(() => {
         audioService.playNote(instrument, si, fret, tuning.notes);
       }, si * 50);
     }
-  }, [pressedFrets, ensureAudioReady, instrument]);
+  }, [pressedFrets, mutedStrings, ensureAudioReady, instrument]);
 
   return (
     <div className="app">
@@ -272,6 +303,8 @@ export default function App() {
                 activeStrings={activeStrings}
                 onStringPluck={handleFretPress}
                 pressedFrets={pressedFrets}
+                mutedStrings={mutedStrings}
+                onToggleMute={handleToggleMute}
                 editMode={editMode}
                 onEditModeChange={setEditMode}
                 onPlayString={handlePlayString}
