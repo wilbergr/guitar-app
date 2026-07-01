@@ -42,7 +42,7 @@ export default function GuitarString({
         y1={y}
         x2={fretXPositions[totalFrets]}
         y2={y}
-        stroke={isActive ? '#f5a623' : '#a0968a'}
+        style={{ stroke: isActive ? 'var(--fret-string-active)' : 'var(--fret-string)' }}
         strokeWidth={stringThickness}
       />
 

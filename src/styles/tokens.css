@@ -26,6 +26,19 @@
   --danger: #f87171;
   --warning: #fbbf24;
 
+  /* Fretboard & chord-diagram SVG colors.
+     These drive presentation on the wooden board / diagram grid, which is not a
+     standard surface token. Dark defaults here; light overrides below. var()
+     resolves in inline `style` (used by the SVGs), not in raw stroke=/fill=
+     attributes — see CLAUDE.md. */
+  --fret-board-bg: rgba(139, 90, 43, 0.15);
+  --fret-string: #a0968a;
+  --fret-string-active: #f5a623;
+  --fret-marker: rgba(255, 255, 255, 0.15);
+  --diagram-line: rgba(255, 255, 255, 0.2);
+  --diagram-string: rgba(255, 255, 255, 0.3);
+  --diagram-fret-label: rgba(255, 255, 255, 0.6);
+
   /* Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -74,6 +87,15 @@
   --danger: #dc2626;
   --warning: #b45309;
   --shadow-md: 0 4px 12px rgba(60, 50, 40, 0.15);
+  /* Fretboard/diagram: dark defaults are white-translucent (built for the dark
+     board) and vanish on a light board. Swap to dark, warm-toned ink so
+     strings, grid lines, inlay markers and labels stay clearly visible. */
+  --fret-board-bg: rgba(120, 80, 40, 0.10);
+  --fret-string: #5c4a33;
+  --fret-marker: rgba(45, 30, 15, 0.32);
+  --diagram-line: rgba(40, 28, 14, 0.28);
+  --diagram-string: rgba(40, 28, 14, 0.55);
+  --diagram-fret-label: #4a5361;
 }
 
 @media (prefers-color-scheme: light) {
@@ -93,5 +115,11 @@
     --danger: #dc2626;
     --warning: #b45309;
     --shadow-md: 0 4px 12px rgba(60, 50, 40, 0.15);
+    --fret-board-bg: rgba(120, 80, 40, 0.10);
+    --fret-string: #5c4a33;
+    --fret-marker: rgba(45, 30, 15, 0.32);
+    --diagram-line: rgba(40, 28, 14, 0.28);
+    --diagram-string: rgba(40, 28, 14, 0.55);
+    --diagram-fret-label: #4a5361;
   }
 }

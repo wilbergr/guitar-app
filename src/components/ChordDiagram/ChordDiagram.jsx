@@ -52,7 +52,7 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
             y={topPad + cellH / 2 + 3}
             textAnchor="end"
             fontSize={isLarge ? 9 : 6}
-            fill="rgba(255,255,255,0.6)"
+            style={{ fill: 'var(--diagram-fret-label)' }}
           >
             {chord.startFret}fr
           </text>
@@ -78,7 +78,7 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
             y1={topPad + fi * cellH}
             x2={leftPad + stringCount * cellW - 2}
             y2={topPad + fi * cellH}
-            stroke="rgba(255,255,255,0.2)"
+            style={{ stroke: 'var(--diagram-line)' }}
             strokeWidth={1}
           />
         ))}
@@ -91,7 +91,7 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
             y1={topPad}
             x2={stringX(si)}
             y2={topPad + FRET_ROWS * cellH}
-            stroke="rgba(255,255,255,0.3)"
+            style={{ stroke: 'var(--diagram-string)' }}
             strokeWidth={si === 0 ? 1.5 : 1}
           />
         ))}

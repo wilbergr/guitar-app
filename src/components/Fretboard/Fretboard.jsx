@@ -110,7 +110,7 @@ export default function Fretboard({
           y={TOP_MARGIN}
           width={fretXPositions[TOTAL_FRETS] - fretXPositions[0]}
           height={(stringCount - 1) * STRING_SPACING}
-          fill="rgba(139, 90, 43, 0.15)"
+          style={{ fill: 'var(--fret-board-bg)' }}
           rx={0}
         />
 
@@ -120,7 +120,7 @@ export default function Fretboard({
           const midX = (fretXPositions[fret - 1] + fretXPositions[fret]) / 2;
           const midY = TOP_MARGIN + ((stringCount - 1) * STRING_SPACING) / 2;
           return (
-            <circle key={fret} cx={midX} cy={midY} r={5} fill="rgba(255,255,255,0.15)" />
+            <circle key={fret} cx={midX} cy={midY} r={5} style={{ fill: 'var(--fret-marker)' }} />
           );
         })}
         {DOUBLE_MARKER_FRET <= TOTAL_FRETS && (() => {
@@ -128,8 +128,8 @@ export default function Fretboard({
           const midY = TOP_MARGIN + ((stringCount - 1) * STRING_SPACING) / 2;
           return (
             <>
-              <circle cx={midX} cy={midY - 8} r={5} fill="rgba(255,255,255,0.15)" />
-              <circle cx={midX} cy={midY + 8} r={5} fill="rgba(255,255,255,0.15)" />
+              <circle cx={midX} cy={midY - 8} r={5} style={{ fill: 'var(--fret-marker)' }} />
+              <circle cx={midX} cy={midY + 8} r={5} style={{ fill: 'var(--fret-marker)' }} />
             </>
           );
         })()}
