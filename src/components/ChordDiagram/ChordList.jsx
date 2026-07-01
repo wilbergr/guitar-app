@@ -49,7 +49,17 @@ export default function ChordList({ instrument, selectedChordId, onChordSelect }
               <div
                 key={chord.id}
                 className={`chord-card${chord.id === selectedChordId ? ' selected' : ''}`}
+                role="button"
+                tabIndex={0}
+                aria-pressed={chord.id === selectedChordId}
+                aria-label={`Select ${chord.name} chord`}
                 onClick={() => onChordSelect(chord)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onChordSelect(chord);
+                  }
+                }}
               >
                 <ChordDiagram
                   chord={chord}

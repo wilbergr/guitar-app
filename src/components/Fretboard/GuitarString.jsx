@@ -5,6 +5,7 @@ const FINGER_COLORS = ['#888', '#ef4444', '#22c55e', '#3b82f6', '#f97316'];
 
 export default function GuitarString({
   stringIndex,
+  stringName,
   y,
   fretXPositions,
   stringCount,
@@ -55,6 +56,10 @@ export default function GuitarString({
         let dotColor = null;
         let dotLabel = null;
         let pressedDotHere = false;
+        // The revealed correct answer (placement mode, after a wrong submit).
+        // Drawn as an outlined ring so it reads distinctly from the user's
+        // solid orange placement dot without relying on color perception.
+        let isCorrectMarker = false;
 
         if (placementMode) {
           if (placedFret === actualFret) {
@@ -62,7 +67,7 @@ export default function GuitarString({
             dotLabel = '●';
           }
           if (correctFret !== undefined && correctFret === actualFret && placedFret !== actualFret) {
-            dotColor = 'rgba(34,197,94,0.7)';
+            isCorrectMarker = true;
           }
         } else {
           if (dotFretIndex === fi) {
@@ -79,6 +84,23 @@ export default function GuitarString({
           }
         }
 
+        // Whether this cell represents an active toggle (edit/placement) vs a
+        // momentary play action — drives aria-pressed semantics.
+        const isMomentary = !placementMode && !editMode;
+        const isToggleActive = placementMode
+          ? placedFret === actualFret
+          : (!!editMode && pressedFret === actualFret);
+
+        const activate = () => {
+          if (placementMode) {
+            onPlace && onPlace(stringIndex, actualFret);
+          } else if (editMode) {
+            onPluck && onPluck(stringIndex, actualFret);
+          } else {
+            onPlayString && onPlayString(stringIndex);
+          }
+        };
+
         return (
           <g key={fi}>
             <rect
@@ -88,13 +110,15 @@ export default function GuitarString({
               width={x2 - x1}
               height={36}
               fill="transparent"
-              onClick={() => {
-                if (placementMode) {
-                  onPlace && onPlace(stringIndex, actualFret);
-                } else if (editMode) {
-                  onPluck && onPluck(stringIndex, actualFret);
-                } else {
-                  onPlayString && onPlayString(stringIndex);
+              role="button"
+              tabIndex={0}
+              aria-label={`${stringName} string, fret ${actualFret}`}
+              aria-pressed={isMomentary ? undefined : isToggleActive}
+              onClick={activate}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                  e.preventDefault();
+                  activate();
                 }
               }}
             />
@@ -113,6 +137,17 @@ export default function GuitarString({
               >
                 {dotLabel}
               </text>
+            )}
+            {isCorrectMarker && (
+              <circle
+                cx={midX}
+                cy={y}
+                r={9}
+                fill="none"
+                stroke="#22c55e"
+                strokeWidth={2.5}
+                strokeDasharray="3 2"
+              />
             )}
             {pressedDotHere && (
               <circle cx={midX} cy={y} r={9} fill="#a78bfa" opacity={0.95} />

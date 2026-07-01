@@ -376,19 +376,36 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
       </div>
 
       {challengeType === 'diagram' ? (
-        <div className="options-grid">
+        <div className="options-grid" role="group" aria-label={`Pick the diagram for ${question.correct.name}`}>
           {question.options.map((opt) => {
             let cardClass = 'option-card';
+            let badge = null;
             if (answered) {
-              if (opt.id === question.correct.id) cardClass += ' correct';
-              else if (opt.id === selectedOptionId) cardClass += ' wrong';
+              if (opt.id === question.correct.id) { cardClass += ' correct'; badge = 'correct'; }
+              else if (opt.id === selectedOptionId) { cardClass += ' wrong'; badge = 'wrong'; }
             }
+            const activate = () => handleDiagramSelect(opt);
             return (
               <div
                 key={opt.id}
                 className={cardClass}
-                onClick={() => handleDiagramSelect(opt)}
+                role="button"
+                tabIndex={answered ? -1 : 0}
+                aria-label={`Select ${opt.name}`}
+                aria-disabled={answered || undefined}
+                onClick={activate}
+                onKeyDown={(e) => {
+                  if (!answered && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    activate();
+                  }
+                }}
               >
+                {badge && (
+                  <span className={`option-badge ${badge}`} aria-hidden="true">
+                    {badge === 'correct' ? <Check /> : <X />}
+                  </span>
+                )}
                 <ChordDiagram chord={opt} size="small" />
                 <div className="option-card-name">{opt.name}</div>
               </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Guitar, Target, BookOpen, Volume2, Music } from 'lucide-react';
+import { Guitar, Target, BookOpen, Volume2, Music, Sun, Moon } from 'lucide-react';
 import './App.css';
 import InstrumentSelector from './components/InstrumentSelector/InstrumentSelector';
 import Fretboard from './components/Fretboard/Fretboard';
@@ -9,9 +9,11 @@ import ChordChallenge from './components/ChordChallenge/ChordChallenge';
 import audioService from './services/audioService';
 import { TUNINGS } from './data/tunings';
 import useMediaQuery from './hooks/useMediaQuery';
+import useTheme from './hooks/useTheme';
 
 export default function App() {
   const isPhone = useMediaQuery('(max-width: 599px)');
+  const { theme, toggleTheme } = useTheme();
   const [instrument, setInstrument] = useState('guitar');
   const [selectedChord, setSelectedChord] = useState(null);
   const [activeStrings, setActiveStrings] = useState(new Set());
@@ -140,8 +142,25 @@ export default function App() {
               ? (<><Target aria-hidden="true" /> Challenge</>)
               : (<><BookOpen aria-hidden="true" /> Learn</>)}
           </button>
+          <button
+            type="button"
+            className="btn btn-secondary btn-icon theme-toggle-btn"
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+            title={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+          >
+            {theme === 'light'
+              ? <Moon aria-hidden="true" />
+              : <Sun aria-hidden="true" />}
+          </button>
         </div>
       </header>
+
+      {/* Announce audio-state changes to assistive tech — screen-reader parity
+          for the visual hint banner sighted users see. */}
+      <div className="sr-only" role="status" aria-live="polite">
+        {audioReady ? 'Audio enabled' : ''}
+      </div>
 
       {appMode === 'challenge' ? (
         <ChordChallenge

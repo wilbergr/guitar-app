@@ -1,4 +1,9 @@
-/* Design tokens — dark theme default, light overrides via prefers-color-scheme. */
+/* Design tokens.
+   Dark is the default (:root). Light is applied either explicitly via
+   [data-theme="light"] (set by the theme toggle) or, before JS resolves an
+   explicit choice, via the OS preference (@media prefers-color-scheme: light
+   scoped to :root:not([data-theme])). [data-theme="dark"] pins dark even when
+   the OS prefers light. See src/hooks/useTheme.js for how data-theme is set. */
 
 :root {
   /* Color — surfaces & text */
@@ -14,6 +19,9 @@
   --accent: #d4a574;
   --accent-hi: #e8b87f;
   --accent-bg: rgba(212, 165, 116, 0.12);
+  /* Foreground for text/icons that sit on an accent fill (e.g. primary buttons).
+     Dark theme: near-black on the light copper accent. */
+  --on-accent: #1a1108;
   --success: #4ade80;
   --danger: #f87171;
   --warning: #fbbf24;
@@ -45,17 +53,45 @@
   --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Light theme color overrides. Shared by the explicit toggle and the pre-JS
+   OS-preference fallback below. Status colors are darkened relative to dark
+   theme so text/borders on light surfaces meet WCAG AA contrast. */
+[data-theme="light"] {
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface-2: #f1eee9;
+  --border: #d8d1c5;
+  --text: #1a1a1f;
+  --text-muted: #4a5361;
+  --text-faint: #6b7280;
+  /* Accent is darkened vs dark theme so it clears AA (4.5:1) as small text on
+     white and, equivalently, carries white --on-accent text on button fills. */
+  --accent: #8f5f2e;
+  --accent-hi: #9c6a34;
+  --accent-bg: rgba(143, 95, 46, 0.12);
+  --on-accent: #ffffff;
+  --success: #15803d;
+  --danger: #dc2626;
+  --warning: #b45309;
+  --shadow-md: 0 4px 12px rgba(60, 50, 40, 0.15);
+}
+
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme]) {
     --bg: #faf8f5;
     --surface: #ffffff;
     --surface-2: #f1eee9;
-    --border: #e3ddd3;
+    --border: #d8d1c5;
     --text: #1a1a1f;
-    --text-muted: #57606f;
-    --text-faint: #8a92a0;
-    --accent: #b8804a;
-    --accent-hi: #cf9558;
-    --accent-bg: rgba(184, 128, 74, 0.12);
+    --text-muted: #4a5361;
+    --text-faint: #6b7280;
+    --accent: #8f5f2e;
+    --accent-hi: #9c6a34;
+    --accent-bg: rgba(143, 95, 46, 0.12);
+    --on-accent: #ffffff;
+    --success: #15803d;
+    --danger: #dc2626;
+    --warning: #b45309;
+    --shadow-md: 0 4px 12px rgba(60, 50, 40, 0.15);
   }
 }

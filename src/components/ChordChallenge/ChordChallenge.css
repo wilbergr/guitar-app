@@ -143,6 +143,7 @@
 }
 
 .option-card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -153,6 +154,34 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
+}
+
+/* Correct/wrong glyph badge — a non-color (shape) cue so the answered state is
+   distinguishable without relying on the green/red card tint. */
+.option-badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  color: #fff;
+}
+
+.option-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.option-badge.correct {
+  background: var(--success);
+}
+
+.option-badge.wrong {
+  background: var(--danger);
 }
 
 .option-card:hover:not(.correct):not(.wrong) {
@@ -210,15 +239,20 @@
   color: var(--text-muted);
 }
 
+/* Active open/mute toggles: the Circle vs X icon already distinguishes the two
+   controls by shape; the thicker (2px) border here reinforces the pressed
+   state without depending on the green/red tint being perceivable. */
 .toggle-btn.open-active {
   background: rgba(74, 222, 128, 0.15);
   border-color: var(--success);
+  border-width: 2px;
   color: var(--success);
 }
 
 .toggle-btn.mute-active {
   background: rgba(248, 113, 113, 0.15);
   border-color: var(--danger);
+  border-width: 2px;
   color: var(--danger);
 }
 

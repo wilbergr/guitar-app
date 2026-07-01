@@ -1,7 +1,14 @@
+import { useRef } from 'react';
 import { Pencil, Play, Circle, X } from 'lucide-react';
 import './Fretboard.css';
 import GuitarString from './GuitarString';
 import { TUNINGS } from '../../data/tunings';
+
+// Edit / Play options for the mode radiogroup. `val` is the editMode boolean.
+const MODE_SEGMENTS = [
+  { val: true, label: 'Edit', Icon: Pencil },
+  { val: false, label: 'Play', Icon: Play },
+];
 
 // Portrait orientation note:
 // On phone-sized viewports the SVG is rendered inside a `.fretboard-portrait-frame`
@@ -44,6 +51,17 @@ export default function Fretboard({
   const tuning = TUNINGS[instrument];
   const stringCount = tuning.stringCount;
   const strings = tuning.stringNames;
+  const segmentRefs = useRef([]);
+
+  const handleSegmentKeyDown = (e, idx) => {
+    let nextIdx = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextIdx = (idx + 1) % MODE_SEGMENTS.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') nextIdx = (idx - 1 + MODE_SEGMENTS.length) % MODE_SEGMENTS.length;
+    else return;
+    e.preventDefault();
+    onEditModeChange && onEditModeChange(MODE_SEGMENTS[nextIdx].val);
+    segmentRefs.current[nextIdx]?.focus();
+  };
 
   // SVG dimensions
   const svgWidth = LEFT_MARGIN + TOTAL_FRETS * FRET_WIDTH_MIN + RIGHT_MARGIN;
@@ -166,7 +184,6 @@ export default function Fretboard({
 
           // Open/muted indicators above nut
           const nutX = fretXPositions[0] - 14;
-          const mutedOrOpen = selectedChord && (selectedFret === -1 || selectedFret === 0);
 
           // Placement mode: get user placed value
           const placedFret = placedFingers ? placedFingers.get(si) : undefined;
@@ -198,6 +215,7 @@ export default function Fretboard({
 
               <GuitarString
                 stringIndex={si}
+                stringName={strings[si]}
                 y={y}
                 fretXPositions={fretXPositions}
                 stringCount={stringCount}
@@ -257,23 +275,26 @@ export default function Fretboard({
         {placementMode ? 'Place finger positions on fretboard' : 'Interactive Fretboard'}
       </div>
       {!placementMode && (
-        <div className="segmented-control" role="group" aria-label="Fretboard mode">
-          <button
-            type="button"
-            className={`btn segment ${editMode ? 'btn-primary active' : 'btn-ghost'}`}
-            aria-pressed={editMode}
-            onClick={() => onEditModeChange && onEditModeChange(true)}
-          >
-            <Pencil aria-hidden="true" /> Edit
-          </button>
-          <button
-            type="button"
-            className={`btn segment ${!editMode ? 'btn-primary active' : 'btn-ghost'}`}
-            aria-pressed={!editMode}
-            onClick={() => onEditModeChange && onEditModeChange(false)}
-          >
-            <Play aria-hidden="true" /> Play
-          </button>
+        <div className="segmented-control" role="radiogroup" aria-label="Fretboard mode">
+          {MODE_SEGMENTS.map((seg, idx) => {
+            const checked = editMode === seg.val;
+            const { Icon } = seg;
+            return (
+              <button
+                key={seg.label}
+                type="button"
+                role="radio"
+                aria-checked={checked}
+                tabIndex={checked ? 0 : -1}
+                ref={(el) => { segmentRefs.current[idx] = el; }}
+                className={`btn segment ${checked ? 'btn-primary active' : 'btn-ghost'}`}
+                onClick={() => onEditModeChange && onEditModeChange(seg.val)}
+                onKeyDown={(e) => handleSegmentKeyDown(e, idx)}
+              >
+                <Icon aria-hidden="true" /> {seg.label}
+              </button>
+            );
+          })}
         </div>
       )}
       {isPortrait ? (
