@@ -87,10 +87,13 @@ export default function App() {
   const handlePlayString = useCallback(async (stringIndex) => {
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
-    const fret = pressedFrets.has(stringIndex)
+    const derived = pressedFrets.has(stringIndex)
       ? pressedFrets.get(stringIndex)
       : selectedChord?.strings[stringIndex];
-    if (fret === undefined || fret === -1) return;
+    // A string explicitly muted by the governing chord stays silent.
+    if (derived === -1) return;
+    // No marker and no chord context → sound the open string (fret 0).
+    const fret = derived === undefined ? 0 : derived;
     audioService.playNote(instrument, stringIndex, fret, tuning.notes);
     setActiveStrings((prev) => { const next = new Set(prev); next.add(stringIndex); return next; });
     setTimeout(() => {
@@ -116,7 +119,7 @@ export default function App() {
   }, [selectedChord, pressedFrets, ensureAudioReady, instrument]);
 
   const handleStrumPressedFrets = useCallback(async () => {
-    if (pressedFrets.size === 0) return;
+    // With no markers, strum sounds the open strings (each defaults to fret 0).
     await ensureAudioReady();
     const tuning = TUNINGS[instrument];
     const stringCount = tuning.stringCount;
@@ -195,14 +198,17 @@ export default function App() {
                     <Music aria-hidden="true" /> Strum Chord
                   </button>
                 </>
-              ) : pressedFrets.size > 0 ? (
-                <button className="btn btn-primary strum-btn" onClick={handleStrumPressedFrets}>
-                  <Music aria-hidden="true" /> Strum
-                </button>
               ) : (
-                <div className="no-chord-hint">
-                  Select a chord or tap the fretboard to press frets
-                </div>
+                <>
+                  <button className="btn btn-primary strum-btn" onClick={handleStrumPressedFrets}>
+                    <Music aria-hidden="true" /> Strum
+                  </button>
+                  {pressedFrets.size === 0 && (
+                    <div className="no-chord-hint">
+                      Select a chord or tap the fretboard — Strum sounds the open strings
+                    </div>
+                  )}
+                </>
               )}
 
               <Fretboard
