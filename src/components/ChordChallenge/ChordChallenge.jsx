@@ -36,7 +36,7 @@ const SCREEN = {
   RESULTS: 'results',
 };
 
-export default function ChordChallenge({ instrument, onExit, ensureAudioReady }) {
+export default function ChordChallenge({ instrument, onExit, ensureAudioReady, orientation = 'landscape' }) {
   const [screen, setScreen] = useState(SCREEN.SELECT_TYPE);
   const [challengeType, setChallengeType] = useState('diagram'); // 'diagram' | 'placement'
   const [isPractice, setIsPractice] = useState(true);
@@ -376,9 +376,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
                 onClick={() => handleDiagramSelect(opt)}
               >
                 <ChordDiagram chord={opt} size="small" />
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                  {opt.name}
-                </div>
+                <div className="option-card-name">{opt.name}</div>
               </div>
             );
           })}
@@ -418,6 +416,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady })
             placedFingers={placedFingers}
             onFingerPlace={handleFingerPlace}
             correctFingers={placementSubmitted && !placementCorrect ? correctFingers : null}
+            orientation={orientation}
           />
           <div className="placement-controls">
             {placementSubmitted ? (

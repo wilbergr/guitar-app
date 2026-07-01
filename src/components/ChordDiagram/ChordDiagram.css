@@ -62,8 +62,56 @@
 
 .chord-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
   gap: var(--space-2);
+}
+
+/* Phone-only chord chip strip (rendered by ChordList when viewport < 600px). */
+.chord-strip {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-2) var(--space-1);
+  margin: 0 calc(var(--space-3) * -1);
+  scrollbar-width: none;
+}
+
+.chord-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.chord-chip {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.chord-chip:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+}
+
+.chord-chip.selected {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .chord-card {

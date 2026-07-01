@@ -2,6 +2,15 @@ import './Fretboard.css';
 import GuitarString from './GuitarString';
 import { TUNINGS } from '../../data/tunings';
 
+// Portrait orientation note:
+// On phone-sized viewports the SVG is rendered inside a `.fretboard-portrait-frame`
+// wrapper that visually rotates the SVG 90° via CSS transform (see Fretboard.css).
+// We chose the CSS-rotate fallback over a per-coordinate axis swap because it
+// preserves all existing click / keyboard / chord-marker logic untouched —
+// browsers correctly hit-test through CSS transforms. Trade-off: text labels
+// (string names, fret numbers) render rotated 90° as well, which is acceptable
+// for single-character labels.
+
 // Fret position markers (standard guitar inlays)
 const MARKER_FRETS = [3, 5, 7, 9];
 const DOUBLE_MARKER_FRET = 12;
@@ -23,12 +32,14 @@ export default function Fretboard({
   editMode = true,
   onEditModeToggle,
   onPlayString,
+  orientation = 'landscape',
   // Placement mode props
   placementMode = false,
   placedFingers,
   onFingerPlace,
   correctFingers,
 }) {
+  const isPortrait = orientation === 'portrait';
   const tuning = TUNINGS[instrument];
   const stringCount = tuning.stringCount;
   const strings = tuning.stringNames;
@@ -45,30 +56,11 @@ export default function Fretboard({
 
   const startFret = selectedChord?.startFret ?? 1;
 
-  return (
-    <div className={`fretboard-container${placementMode ? ' placement-mode' : ''}`}>
-      <div className="fretboard-title">
-        {placementMode ? 'Place finger positions on fretboard' : 'Interactive Fretboard'}
-      </div>
-      {!placementMode && (
-        <div className="fretboard-mode-toggle">
-          <button
-            className={`btn fretboard-mode-btn ${editMode ? 'btn-primary active' : 'btn-ghost'}`}
-            onClick={onEditModeToggle}
-          >
-            Edit
-          </button>
-          <button
-            className={`btn fretboard-mode-btn ${!editMode ? 'btn-primary active' : 'btn-ghost'}`}
-            onClick={onEditModeToggle}
-          >
-            Play
-          </button>
-        </div>
-      )}
+  const svgEl = (
       <svg
-        className="fretboard-svg"
+        className={`fretboard-svg${isPortrait ? ' fretboard-svg-portrait' : ''}`}
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+        preserveAspectRatio="xMidYMid meet"
       >
         {/* Nut */}
         <rect
@@ -260,6 +252,43 @@ export default function Fretboard({
           );
         })()}
       </svg>
+  );
+
+  return (
+    <div className={`fretboard-container${placementMode ? ' placement-mode' : ''}${isPortrait ? ' portrait' : ''}`}>
+      <div className="fretboard-title">
+        {placementMode ? 'Place finger positions on fretboard' : 'Interactive Fretboard'}
+      </div>
+      {!placementMode && (
+        <div className="fretboard-mode-toggle">
+          <button
+            className={`btn fretboard-mode-btn ${editMode ? 'btn-primary active' : 'btn-ghost'}`}
+            onClick={onEditModeToggle}
+          >
+            Edit
+          </button>
+          <button
+            className={`btn fretboard-mode-btn ${!editMode ? 'btn-primary active' : 'btn-ghost'}`}
+            onClick={onEditModeToggle}
+          >
+            Play
+          </button>
+        </div>
+      )}
+      {isPortrait ? (
+        <div
+          className="fretboard-portrait-frame"
+          style={{
+            aspectRatio: `${svgHeight} / ${svgWidth}`,
+            '--svg-w': svgWidth,
+            '--svg-h': svgHeight,
+          }}
+        >
+          {svgEl}
+        </div>
+      ) : (
+        svgEl
+      )}
     </div>
   );
 }

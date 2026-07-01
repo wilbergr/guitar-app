@@ -2,11 +2,13 @@
   background: var(--surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: var(--space-4);
-  overflow-x: auto;
-  overflow-y: hidden;
+  padding: var(--space-3);
   width: 100%;
   box-sizing: border-box;
+}
+
+.fretboard-container.portrait {
+  padding: var(--space-3);
 }
 
 .fretboard-title {
@@ -22,6 +24,31 @@
   width: 100%;
   max-width: 668px;
   height: auto;
+  margin: 0 auto;
+}
+
+/* Portrait orientation: rotate the SVG 90° via CSS transform so the neck runs
+   top → bottom. See header comment in Fretboard.jsx for the rationale. */
+.fretboard-portrait-frame {
+  container-type: size;
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  /* aspect-ratio is set inline from svgHeight/svgWidth. */
+}
+
+.fretboard-svg-portrait {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Pre-rotation: width = frame height, height = frame width.
+     After rotate(90deg), the visual fills the frame. */
+  width: 100cqh;
+  height: 100cqw;
+  max-width: none;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center center;
 }
 
 .fretboard-mode-toggle {
@@ -38,6 +65,16 @@
 .fretboard-mode-btn {
   border-radius: var(--radius-pill);
   font-size: 0.85rem;
+}
+
+/* Fret-cell hit zones (inside SVG strings) */
+.fret-cell {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.fret-cell-label {
+  pointer-events: none;
 }
 
 /* String animation on pluck */

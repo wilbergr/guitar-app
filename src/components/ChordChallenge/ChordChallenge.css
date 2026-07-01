@@ -172,6 +172,11 @@
   border-color: var(--danger);
 }
 
+.option-card-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 /* Placement challenge */
 .placement-controls {
   display: flex;

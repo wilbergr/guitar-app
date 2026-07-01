@@ -1,6 +1,7 @@
 import './ChordDiagram.css';
 import ChordDiagram from './ChordDiagram';
 import { getChordsForInstrument } from '../../services/chordUtils';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 const TYPE_LABELS = {
   major: 'Major Chords',
@@ -10,6 +11,7 @@ const TYPE_LABELS = {
 
 export default function ChordList({ instrument, selectedChordId, onChordSelect }) {
   const chords = getChordsForInstrument(instrument);
+  const isPhone = useMediaQuery('(max-width: 599px)');
 
   // Group by type
   const groups = {};
@@ -17,6 +19,25 @@ export default function ChordList({ instrument, selectedChordId, onChordSelect }
     if (!groups[chord.type]) groups[chord.type] = [];
     groups[chord.type].push(chord);
   });
+
+  if (isPhone) {
+    return (
+      <div className="chord-strip" role="tablist" aria-label="Chord selector">
+        {chords.map((chord) => (
+          <button
+            key={chord.id}
+            type="button"
+            role="tab"
+            aria-selected={chord.id === selectedChordId}
+            className={`chord-chip${chord.id === selectedChordId ? ' selected' : ''}`}
+            onClick={() => onChordSelect(chord)}
+          >
+            {chord.shortName}
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="chord-list">

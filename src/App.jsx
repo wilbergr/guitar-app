@@ -7,8 +7,10 @@ import ChordList from './components/ChordDiagram/ChordList';
 import ChordChallenge from './components/ChordChallenge/ChordChallenge';
 import audioService from './services/audioService';
 import { TUNINGS } from './data/tunings';
+import useMediaQuery from './hooks/useMediaQuery';
 
 export default function App() {
+  const isPhone = useMediaQuery('(max-width: 599px)');
   const [instrument, setInstrument] = useState('guitar');
   const [selectedChord, setSelectedChord] = useState(null);
   const [activeStrings, setActiveStrings] = useState(new Set());
@@ -143,6 +145,7 @@ export default function App() {
           instrument={instrument}
           onExit={() => setAppMode('learn')}
           ensureAudioReady={ensureAudioReady}
+          orientation={isPhone ? 'portrait' : 'landscape'}
         />
       ) : (
         <div className="app-content">
@@ -188,6 +191,7 @@ export default function App() {
                 editMode={editMode}
                 onEditModeToggle={() => setEditMode((m) => !m)}
                 onPlayString={handlePlayString}
+                orientation={isPhone ? 'portrait' : 'landscape'}
               />
             </div>
           </div>

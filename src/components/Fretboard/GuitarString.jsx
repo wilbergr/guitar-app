@@ -82,12 +82,12 @@ export default function GuitarString({
         return (
           <g key={fi}>
             <rect
+              className="fret-cell"
               x={x1}
               y={y - 18}
               width={x2 - x1}
               height={36}
               fill="transparent"
-              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
               onClick={() => {
                 if (placementMode) {
                   onPlace && onPlace(stringIndex, actualFret);
@@ -103,13 +103,13 @@ export default function GuitarString({
             )}
             {dotLabel && !pressedDotHere && (
               <text
+                className="fret-cell-label"
                 x={midX}
                 y={y + 4}
                 textAnchor="middle"
                 fontSize={10}
                 fontWeight="bold"
                 fill="white"
-                style={{ pointerEvents: 'none' }}
               >
                 {dotLabel}
               </text>
