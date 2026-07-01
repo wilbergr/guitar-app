@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Target, BarChart3, Guitar, BookOpen, Timer, ArrowLeft,
   PartyPopper, Dumbbell, Check, X, Unlock, Circle,
+  Lock, Pause, Play, SkipForward, Clock,
 } from 'lucide-react';
 import './ChordChallenge.css';
 import ChordDiagram from '../ChordDiagram/ChordDiagram';
@@ -51,7 +52,8 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
   const [selectedOptionId, setSelectedOptionId] = useState(null);
   const [round, setRound] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIME_PER_ROUND);
-  const [results, setResults] = useState({ correct: 0, wrong: 0, times: [] });
+  const [paused, setPaused] = useState(false);
+  const [results, setResults] = useState({ correct: 0, wrong: 0, times: [], history: [] });
 
   // Placement mode state
   const [placedFingers, setPlacedFingers] = useState(new Map());
@@ -80,6 +82,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     setPlacementSubmitted(false);
     setPlacementCorrect(null);
     setCorrectFingers(null);
+    setPaused(false);
     roundStartTime.current = Date.now();
     if (!isPractice) setTimeLeft(TIME_PER_ROUND);
   }, [instrument, isPractice]);
@@ -87,7 +90,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
   const startChallenge = useCallback((practice) => {
     setIsPractice(practice);
     setRound(0);
-    setResults({ correct: 0, wrong: 0, times: [] });
+    setResults({ correct: 0, wrong: 0, times: [], history: [] });
     setScreen(SCREEN.QUESTION);
     const q = buildQuestion(instrument);
     setQuestion(q);
@@ -97,13 +100,14 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     setPlacementSubmitted(false);
     setPlacementCorrect(null);
     setCorrectFingers(null);
+    setPaused(false);
     roundStartTime.current = Date.now();
     if (!practice) setTimeLeft(TIME_PER_ROUND);
   }, [instrument]);
 
   // Timer for timed mode
   useEffect(() => {
-    if (screen !== SCREEN.QUESTION || isPractice || answered) {
+    if (screen !== SCREEN.QUESTION || isPractice || answered || paused) {
       clearInterval(timerRef.current);
       return;
     }
@@ -119,14 +123,42 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
       });
     }, 1000);
     return () => clearInterval(timerRef.current);
-  }, [screen, isPractice, answered, round]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [screen, isPractice, answered, paused, round]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const recordOutcome = useCallback((outcome, elapsed) => {
+    const chord = question?.correct;
+    const isCorrect = outcome === 'correct';
+    setResults((prev) => ({
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      wrong: prev.wrong + (isCorrect ? 0 : 1),
+      times: [...prev.times, elapsed],
+      history: [
+        ...prev.history,
+        {
+          name: chord?.name ?? '—',
+          shortName: chord?.shortName ?? chord?.name ?? '—',
+          outcome, // 'correct' | 'wrong' | 'timeout' | 'skipped'
+        },
+      ],
+    }));
+  }, [question]);
 
   const handleTimeout = useCallback(() => {
     if (answered) return;
     setAnswered(true);
-    setResults((prev) => ({ ...prev, wrong: prev.wrong + 1, times: [...prev.times, TIME_PER_ROUND * 1000] }));
+    recordOutcome('timeout', TIME_PER_ROUND * 1000);
     setTimeout(() => advanceRound(), 2000);
-  }, [answered]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [answered, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSkip = useCallback(() => {
+    if (answered || placementSubmitted) return;
+    setAnswered(true);
+    setPlacementSubmitted(true);
+    setPaused(false);
+    const elapsed = Date.now() - roundStartTime.current;
+    recordOutcome('skipped', elapsed);
+    setTimeout(() => advanceRound(), 700);
+  }, [answered, placementSubmitted, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const advanceRound = useCallback(() => {
     const nextRound = round + 1;
@@ -151,14 +183,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     const tuning = TUNINGS[optionChord.instrument];
     audioService.playChord(optionChord, tuning.notes, 'down');
 
-    setResults((prev) => ({
-      correct: prev.correct + (isCorrect ? 1 : 0),
-      wrong: prev.wrong + (isCorrect ? 0 : 1),
-      times: [...prev.times, elapsed],
-    }));
+    recordOutcome(isCorrect ? 'correct' : 'wrong', elapsed);
 
     setTimeout(() => advanceRound(), isPractice ? 1500 : 1000);
-  }, [answered, question, ensureAudioReady, advanceRound, isPractice]);
+  }, [answered, question, ensureAudioReady, advanceRound, isPractice, recordOutcome]);
 
   const handleFingerPlace = useCallback((stringIndex, fret) => {
     if (placementSubmitted) return;
@@ -212,6 +240,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     }
 
     setPlacementSubmitted(true);
+    setAnswered(true);
     setPlacementCorrect(allMatch);
 
     if (!allMatch) {
@@ -220,14 +249,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
       setCorrectFingers(cf);
     }
 
-    setResults((prev) => ({
-      correct: prev.correct + (allMatch ? 1 : 0),
-      wrong: prev.wrong + (allMatch ? 0 : 1),
-      times: [...prev.times, elapsed],
-    }));
+    recordOutcome(allMatch ? 'correct' : 'wrong', elapsed);
 
     setTimeout(() => advanceRound(), 2000);
-  }, [question, placedFingers, placementSubmitted, advanceRound]);
+  }, [question, placedFingers, placementSubmitted, advanceRound, recordOutcome]);
 
   const accuracy = results.correct + results.wrong > 0
     ? results.correct / (results.correct + results.wrong)
@@ -238,6 +263,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     : 0;
 
   const tuning = TUNINGS[instrument];
+  const hasCodeReward = !!challengeConfig?.chordChallengeCode;
 
   if (screen === SCREEN.SELECT_TYPE) {
     return (
@@ -285,6 +311,11 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
               <Timer aria-hidden="true" /> Challenge ({TOTAL_ROUNDS} rounds, {TIME_PER_ROUND}s each)
             </button>
           </div>
+          {hasCodeReward && (
+            <p className="reward-teaser">
+              <Lock className="inline-icon" aria-hidden="true" /> Score {Math.round(0.9 * 100)}%+ in Challenge mode to unlock a bonus code.
+            </p>
+          )}
           <button className="btn btn-ghost back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}><ArrowLeft aria-hidden="true" /> Back</button>
         </div>
       </div>
@@ -327,10 +358,43 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
               </span>
             </div>
           </div>
-          {showCode && (
+          {showCode ? (
             <div className="unlock-code">
               <Unlock className="inline-icon" aria-hidden="true" /> Unlock Code:
               <strong>{challengeConfig.chordChallengeCode}</strong>
+            </div>
+          ) : hasCodeReward && (
+            <div className="unlock-hint">
+              <Lock className="inline-icon" aria-hidden="true" />
+              Score {Math.round(0.9 * 100)}%+ to unlock a bonus code.
+            </div>
+          )}
+          {results.history.length > 0 && (
+            <div className="results-review">
+              <h3>Round Review</h3>
+              <ul className="review-list">
+                {results.history.map((h, i) => (
+                  <li key={i} className={`review-item ${h.outcome === 'correct' ? 'correct' : 'wrong'}`}>
+                    <span className="review-num">{i + 1}</span>
+                    <span className="review-icon" aria-hidden="true">
+                      {h.outcome === 'correct'
+                        ? <Check />
+                        : h.outcome === 'timeout'
+                          ? <Clock />
+                          : h.outcome === 'skipped'
+                            ? <SkipForward />
+                            : <X />}
+                    </span>
+                    <span className="review-chord">{h.name}</span>
+                    <span className="review-outcome">
+                      {h.outcome === 'correct' && 'Correct'}
+                      {h.outcome === 'wrong' && 'Missed'}
+                      {h.outcome === 'timeout' && 'Timed out'}
+                      {h.outcome === 'skipped' && 'Skipped'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
           <div className="results-actions">
@@ -364,12 +428,45 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
           <ArrowLeft aria-hidden="true" /> Exit
         </button>
         {!isPractice && (
-          <div className={`challenge-timer${timeLeft <= 3 ? ' urgent' : ''}`}>
-            <Timer className="inline-icon" aria-hidden="true" /> {timeLeft}s
+          <div className={`challenge-timer${timeLeft <= 3 && !paused ? ' urgent' : ''}`}>
+            <Timer className="inline-icon" aria-hidden="true" /> {paused ? 'Paused' : `${timeLeft}s`}
           </div>
         )}
       </div>
 
+      {!isPractice && !answered && (
+        <div className="challenge-controls">
+          <button
+            className="btn btn-ghost challenge-control-btn"
+            onClick={() => setPaused((p) => !p)}
+            aria-label={paused ? 'Resume timer' : 'Pause timer'}
+          >
+            {paused
+              ? (<><Play aria-hidden="true" /> Resume</>)
+              : (<><Pause aria-hidden="true" /> Pause</>)}
+          </button>
+          <button
+            className="btn btn-ghost challenge-control-btn"
+            onClick={handleSkip}
+            disabled={paused}
+            aria-label="Skip this chord (counts as incorrect)"
+          >
+            <SkipForward aria-hidden="true" /> Skip
+          </button>
+        </div>
+      )}
+
+      {paused ? (
+        <div className="challenge-paused" role="status">
+          <Pause className="inline-icon" aria-hidden="true" />
+          <span className="challenge-paused-title">Paused</span>
+          <p>The timer is stopped and the chord is hidden. Resume when you're ready.</p>
+          <button className="btn btn-primary" onClick={() => setPaused(false)}>
+            <Play aria-hidden="true" /> Resume
+          </button>
+        </div>
+      ) : (
+      <>
       <div className="challenge-question">
         <h3>Which diagram shows...</h3>
         <div className="chord-name-big">{question.correct.name}</div>
@@ -470,6 +567,8 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
             )}
           </div>
         </>
+      )}
+      </>
       )}
     </div>
   );

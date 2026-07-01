@@ -76,6 +76,21 @@
   justify-content: center;
 }
 
+/* Reward teaser on the mode-select screen — advertises the locked reward
+   before it is earned without revealing the code. */
+.reward-teaser {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
 /* Question screen */
 .challenge-header {
   display: flex;
@@ -114,6 +129,49 @@
     from { opacity: 1; }
     to { opacity: 0.5; }
   }
+}
+
+/* Timed-mode fairness controls (Pause / Skip) */
+.challenge-controls {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.challenge-control-btn {
+  font-size: 0.85rem;
+}
+
+/* Paused overlay — hides the chord so the stopped timer can't be used to peek */
+.challenge-paused {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 420px;
+  width: 100%;
+  color: var(--text-muted);
+}
+
+.challenge-paused .inline-icon {
+  color: var(--accent);
+}
+
+.challenge-paused-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.challenge-paused p {
+  margin: 0;
+  font-size: 0.85rem;
 }
 
 .challenge-question {
@@ -344,6 +402,101 @@
   margin-top: var(--space-2);
   color: var(--text);
   letter-spacing: 2px;
+}
+
+/* Locked-reward hint shown on the results screen when the code was not earned */
+.unlock-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Per-question round review */
+.results-review {
+  width: 100%;
+  text-align: left;
+}
+
+.results-review h3 {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+  text-align: center;
+}
+
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.9rem;
+}
+
+.review-item.correct {
+  border-left-color: var(--success);
+}
+
+.review-item.wrong {
+  border-left-color: var(--danger);
+}
+
+.review-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  min-width: 1.5em;
+  text-align: right;
+}
+
+.review-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.review-item.correct .review-icon {
+  color: var(--success);
+}
+
+.review-item.wrong .review-icon {
+  color: var(--danger);
+}
+
+.review-chord {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.review-outcome {
+  color: var(--text-muted);
+  font-size: 0.8rem;
 }
 
 .results-actions {
