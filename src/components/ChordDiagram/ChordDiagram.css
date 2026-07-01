@@ -67,7 +67,16 @@
 }
 
 /* Phone-only chord chip strip (rendered by ChordList when viewport < 600px). */
+.chord-strip-wrap {
+  position: relative;
+  /* Bleed the strip to the screen edges (matches the old strip margin). */
+  margin: 0 calc(var(--space-3) * -1);
+}
+
 .chord-strip {
+  /* Edge-fade widths, toggled by .fade-left / .fade-right (0 = no fade). */
+  --fade-l: 0px;
+  --fade-r: 0px;
   display: flex;
   flex-direction: row;
   gap: var(--space-2);
@@ -76,12 +85,74 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   padding: var(--space-2) var(--space-1);
-  margin: 0 calc(var(--space-3) * -1);
   scrollbar-width: none;
+  /* Fade whichever edge can still be scrolled toward, signalling more chords. */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade-l),
+    #000 calc(100% - var(--fade-r)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade-l),
+    #000 calc(100% - var(--fade-r)),
+    transparent 100%
+  );
+}
+
+.chord-strip.fade-left {
+  --fade-l: 28px;
+}
+
+.chord-strip.fade-right {
+  --fade-r: 44px;
 }
 
 .chord-strip::-webkit-scrollbar {
   display: none;
+}
+
+/* "More chords this way" cue — only mounted while the strip can scroll right. */
+.chord-strip-more {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+}
+
+.chord-strip-more svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chord-strip-more {
+    animation: chordStripNudge 1.4s ease-in-out infinite;
+  }
+
+  @keyframes chordStripNudge {
+    0%,
+    100% {
+      transform: translateY(-50%) translateX(0);
+    }
+    50% {
+      transform: translateY(-50%) translateX(2px);
+    }
+  }
 }
 
 .chord-chip {
