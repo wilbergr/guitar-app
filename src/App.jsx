@@ -1,15 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Guitar, Target, BookOpen, Volume2, Music, Sun, Moon } from 'lucide-react';
+import { Guitar, Target, BookOpen, Volume2, Music, Sun, Moon, Loader2, CheckCircle2, RefreshCw } from 'lucide-react';
 import './App.css';
 import InstrumentSelector from './components/InstrumentSelector/InstrumentSelector';
 import Fretboard from './components/Fretboard/Fretboard';
 import ChordDiagram from './components/ChordDiagram/ChordDiagram';
 import ChordList from './components/ChordDiagram/ChordList';
 import ChordChallenge from './components/ChordChallenge/ChordChallenge';
+import Toast from './components/Toast/Toast';
 import audioService from './services/audioService';
 import { TUNINGS } from './data/tunings';
 import useMediaQuery from './hooks/useMediaQuery';
 import useTheme from './hooks/useTheme';
+
+const INSTRUMENT_LABELS = { guitar: 'Guitar', bass: 'Bass', ukulele: 'Ukulele' };
 
 export default function App() {
   const isPhone = useMediaQuery('(max-width: 599px)');
@@ -19,7 +22,11 @@ export default function App() {
   const [activeStrings, setActiveStrings] = useState(new Set());
   const [pressedFrets, setPressedFrets] = useState(new Map());
   const [appMode, setAppMode] = useState('learn');
-  const [audioReady, setAudioReady] = useState(false);
+  // 'idle' → not started, 'pending' → first gesture is initializing, 'ready' → live.
+  const [audioStatus, setAudioStatus] = useState('idle');
+  const audioReady = audioStatus === 'ready';
+  const [audioConfirm, setAudioConfirm] = useState(false);
+  const [resetToast, setResetToast] = useState(null);
   const [editMode, setEditMode] = useState(true);
 
   useEffect(() => {
@@ -29,18 +36,45 @@ export default function App() {
   }, [instrument, audioReady]);
 
   const ensureAudioReady = useCallback(async () => {
-    if (!audioReady) {
+    // Ignore taps while a first gesture is still initializing so we don't kick
+    // off a second Tone.start()/sampler build in parallel.
+    if (audioStatus === 'ready' || audioStatus === 'pending') return;
+    setAudioStatus('pending');
+    try {
       await audioService.init(instrument);
-      setAudioReady(true);
+      setAudioStatus('ready');
+      // Flash a visual "Sound enabled" confirmation once audio goes live (the
+      // sr-only live region below covers assistive tech).
+      setAudioConfirm(true);
+    } catch {
+      setAudioStatus('idle');
     }
-  }, [audioReady, instrument]);
+  }, [audioStatus, instrument]);
+
+  // Auto-dismiss the audio confirmation. Timeout-only setState keeps this off
+  // the synchronous render path.
+  useEffect(() => {
+    if (!audioConfirm) return;
+    const t = setTimeout(() => setAudioConfirm(false), 2800);
+    return () => clearTimeout(t);
+  }, [audioConfirm]);
+
+  // Auto-dismiss the instrument-reset notice. A fresh object each switch
+  // re-arms the timer and restarts the toast animation.
+  useEffect(() => {
+    if (!resetToast) return;
+    const t = setTimeout(() => setResetToast(null), 2600);
+    return () => clearTimeout(t);
+  }, [resetToast]);
 
   const handleInstrumentChange = useCallback((type) => {
+    if (type === instrument) return;
     setInstrument(type);
     setSelectedChord(null);
     setActiveStrings(new Set());
     setPressedFrets(new Map());
-  }, []);
+    setResetToast({ label: INSTRUMENT_LABELS[type] || type, id: type });
+  }, [instrument]);
 
   const handleChordSelect = useCallback(async (chord) => {
     setSelectedChord(chord);
@@ -165,6 +199,11 @@ export default function App() {
         {audioReady ? 'Audio enabled' : ''}
       </div>
 
+      {/* Screen-reader parity for the visual instrument-reset toast. */}
+      <div className="sr-only" role="status" aria-live="polite">
+        {resetToast ? `Switched to ${resetToast.label}. Board cleared.` : ''}
+      </div>
+
       {appMode === 'challenge' ? (
         <ChordChallenge
           instrument={instrument}
@@ -176,8 +215,24 @@ export default function App() {
         <div className="app-content">
           {!audioReady && (
             <div className="audio-init-banner">
-              <Volume2 className="audio-init-icon" aria-hidden="true" />
-              Click a chord or string to initialize audio
+              <button
+                type="button"
+                className="btn btn-primary audio-enable-btn"
+                onClick={ensureAudioReady}
+                disabled={audioStatus === 'pending'}
+                aria-label="Enable sound"
+              >
+                {audioStatus === 'pending' ? (
+                  <><Loader2 className="audio-enable-spinner" aria-hidden="true" /> Enabling sound…</>
+                ) : (
+                  <><Volume2 aria-hidden="true" /> Enable sound</>
+                )}
+              </button>
+              <span className="audio-init-hint">
+                {audioStatus === 'pending'
+                  ? 'Starting audio — just a moment'
+                  : 'Turn on sound, or tap any chord or string to start'}
+              </span>
             </div>
           )}
 
@@ -226,6 +281,15 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <div className="toast-stack">
+        {audioConfirm && (
+          <Toast tone="success" icon={CheckCircle2} message="Sound enabled" />
+        )}
+        {resetToast && (
+          <Toast tone="default" icon={RefreshCw} message={`${resetToast.label} loaded — board cleared`} />
+        )}
+      </div>
     </div>
   );
 }

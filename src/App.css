@@ -108,18 +108,29 @@
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
   text-align: center;
-  font-size: 0.85rem;
-  color: var(--text-muted);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: var(--space-2) var(--space-3);
 }
 
-.audio-init-icon {
-  width: 1.1em;
-  height: 1.1em;
-  flex: none;
+.audio-init-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Spinner shown on the Enable-sound button while audio initializes. */
+@media (prefers-reduced-motion: no-preference) {
+  .audio-enable-spinner {
+    animation: audioSpin 900ms linear infinite;
+  }
+
+  @keyframes audioSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }
 
 @media (min-width: 600px) {
