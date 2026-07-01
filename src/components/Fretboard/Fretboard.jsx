@@ -1,3 +1,4 @@
+import { Pencil, Play, Circle, X } from 'lucide-react';
 import './Fretboard.css';
 import GuitarString from './GuitarString';
 import { TUNINGS } from '../../data/tunings';
@@ -30,7 +31,7 @@ export default function Fretboard({
   onStringPluck,
   pressedFrets,
   editMode = true,
-  onEditModeToggle,
+  onEditModeChange,
   onPlayString,
   orientation = 'landscape',
   // Placement mode props
@@ -189,13 +190,9 @@ export default function Fretboard({
               {/* Open/muted indicator */}
               {selectedChord && selectedFret !== undefined && (
                 selectedFret === 0 ? (
-                  <text x={nutX} y={y + 4} textAnchor="middle" fontSize={14} fill="#6ee7b7">
-                    ○
-                  </text>
+                  <Circle x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--success)' }} aria-hidden="true" />
                 ) : selectedFret === -1 ? (
-                  <text x={nutX} y={y + 4} textAnchor="middle" fontSize={12} fill="#f87171">
-                    ✕
-                  </text>
+                  <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)' }} aria-hidden="true" />
                 ) : null
               )}
 
@@ -260,18 +257,22 @@ export default function Fretboard({
         {placementMode ? 'Place finger positions on fretboard' : 'Interactive Fretboard'}
       </div>
       {!placementMode && (
-        <div className="fretboard-mode-toggle">
+        <div className="segmented-control" role="group" aria-label="Fretboard mode">
           <button
-            className={`btn fretboard-mode-btn ${editMode ? 'btn-primary active' : 'btn-ghost'}`}
-            onClick={onEditModeToggle}
+            type="button"
+            className={`btn segment ${editMode ? 'btn-primary active' : 'btn-ghost'}`}
+            aria-pressed={editMode}
+            onClick={() => onEditModeChange && onEditModeChange(true)}
           >
-            Edit
+            <Pencil aria-hidden="true" /> Edit
           </button>
           <button
-            className={`btn fretboard-mode-btn ${!editMode ? 'btn-primary active' : 'btn-ghost'}`}
-            onClick={onEditModeToggle}
+            type="button"
+            className={`btn segment ${!editMode ? 'btn-primary active' : 'btn-ghost'}`}
+            aria-pressed={!editMode}
+            onClick={() => onEditModeChange && onEditModeChange(false)}
           >
-            Play
+            <Play aria-hidden="true" /> Play
           </button>
         </div>
       )}

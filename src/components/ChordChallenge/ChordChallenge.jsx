@@ -1,4 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  Target, BarChart3, Guitar, BookOpen, Timer, ArrowLeft,
+  PartyPopper, Dumbbell, Check, X, Unlock, Circle,
+} from 'lucide-react';
 import './ChordChallenge.css';
 import ChordDiagram from '../ChordDiagram/ChordDiagram';
 import Fretboard from '../Fretboard/Fretboard';
@@ -239,25 +243,25 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     return (
       <div className="chord-challenge">
         <div className="challenge-mode-select">
-          <h2>🎯 Chord Challenge</h2>
+          <h2><Target className="inline-icon" aria-hidden="true" /> Chord Challenge</h2>
           <p>Test your knowledge of chord shapes on {instrument}.</p>
           <div className="challenge-type-grid">
             <button
               className="challenge-type-card"
               onClick={() => { setChallengeType('diagram'); setScreen(SCREEN.SELECT_MODE); }}
             >
-              <h3>📊 Diagram Recognition</h3>
+              <h3><BarChart3 className="inline-icon" aria-hidden="true" /> Diagram Recognition</h3>
               <p>See a chord name, pick the correct diagram from 4 options.</p>
             </button>
             <button
               className="challenge-type-card"
               onClick={() => { setChallengeType('placement'); setScreen(SCREEN.SELECT_MODE); }}
             >
-              <h3>🎸 Fretboard Placement</h3>
+              <h3><Guitar className="inline-icon" aria-hidden="true" /> Fretboard Placement</h3>
               <p>See a chord name, place the finger positions on the fretboard.</p>
             </button>
           </div>
-          <button className="btn btn-ghost back-btn" onClick={onExit}>← Back to Learn</button>
+          <button className="btn btn-ghost back-btn" onClick={onExit}><ArrowLeft aria-hidden="true" /> Back to Learn</button>
         </div>
       </div>
     );
@@ -267,17 +271,21 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     return (
       <div className="chord-challenge">
         <div className="challenge-mode-select">
-          <h2>{challengeType === 'diagram' ? '📊 Diagram Recognition' : '🎸 Fretboard Placement'}</h2>
+          <h2>
+            {challengeType === 'diagram'
+              ? (<><BarChart3 className="inline-icon" aria-hidden="true" /> Diagram Recognition</>)
+              : (<><Guitar className="inline-icon" aria-hidden="true" /> Fretboard Placement</>)}
+          </h2>
           <p>Choose your mode:</p>
           <div className="mode-buttons">
             <button className="btn btn-secondary mode-btn practice" onClick={() => startChallenge(true)}>
-              📚 Practice (no timer)
+              <BookOpen aria-hidden="true" /> Practice (no timer)
             </button>
             <button className="btn btn-primary mode-btn timed" onClick={() => startChallenge(false)}>
-              ⏱ Challenge ({TOTAL_ROUNDS} rounds, {TIME_PER_ROUND}s each)
+              <Timer aria-hidden="true" /> Challenge ({TOTAL_ROUNDS} rounds, {TIME_PER_ROUND}s each)
             </button>
           </div>
-          <button className="btn btn-ghost back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>← Back</button>
+          <button className="btn btn-ghost back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}><ArrowLeft aria-hidden="true" /> Back</button>
         </div>
       </div>
     );
@@ -290,7 +298,11 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     return (
       <div className="chord-challenge">
         <div className="results-screen">
-          <h2>{passed ? '🎉 Passed!' : '💪 Keep Practicing'}</h2>
+          <h2>
+            {passed
+              ? (<><PartyPopper className="inline-icon" aria-hidden="true" /> Passed!</>)
+              : (<><Dumbbell className="inline-icon" aria-hidden="true" /> Keep Practicing</>)}
+          </h2>
           <div className="results-summary">
             <div className="result-stat">
               <span className="label">Correct</span>
@@ -309,13 +321,15 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
             <div className="result-stat">
               <span className="label">Result</span>
               <span className={`value ${passed ? 'pass' : 'fail'}`}>
-                {passed ? '✓ Pass' : '✗ Fail'} (need {Math.round(PASS_THRESHOLD * 100)}%)
+                {passed
+                  ? (<><Check className="inline-icon" aria-hidden="true" /> Pass</>)
+                  : (<><X className="inline-icon" aria-hidden="true" /> Fail</>)} (need {Math.round(PASS_THRESHOLD * 100)}%)
               </span>
             </div>
           </div>
           {showCode && (
             <div className="unlock-code">
-              🔓 Unlock Code:
+              <Unlock className="inline-icon" aria-hidden="true" /> Unlock Code:
               <strong>{challengeConfig.chordChallengeCode}</strong>
             </div>
           )}
@@ -347,11 +361,11 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
             : `Round ${round + 1} / ${TOTAL_ROUNDS}`}
         </div>
         <button className="btn btn-ghost back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}>
-          ← Exit
+          <ArrowLeft aria-hidden="true" /> Exit
         </button>
         {!isPractice && (
           <div className={`challenge-timer${timeLeft <= 3 ? ' urgent' : ''}`}>
-            ⏱ {timeLeft}s
+            <Timer className="inline-icon" aria-hidden="true" /> {timeLeft}s
           </div>
         )}
       </div>
@@ -394,15 +408,19 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
                   className={`btn btn-icon btn-secondary toggle-btn${placedFingers.get(si) === 0 ? ' open-active' : ''}`}
                   onClick={() => handleOpenToggle(si)}
                   disabled={placementSubmitted}
+                  aria-label={`Play string ${name} open`}
+                  aria-pressed={placedFingers.get(si) === 0}
                 >
-                  ○
+                  <Circle aria-hidden="true" />
                 </button>
                 <button
                   className={`btn btn-icon btn-secondary toggle-btn${placedFingers.get(si) === -1 ? ' mute-active' : ''}`}
                   onClick={() => handleMuteToggle(si)}
                   disabled={placementSubmitted}
+                  aria-label={`Mute string ${name}`}
+                  aria-pressed={placedFingers.get(si) === -1}
                 >
-                  ✕
+                  <X aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -421,7 +439,9 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
           <div className="placement-controls">
             {placementSubmitted ? (
               <div className={`placement-feedback ${placementCorrect ? 'correct' : 'wrong'}`}>
-                {placementCorrect ? '✓ Correct!' : '✗ Wrong — correct positions shown in green'}
+                {placementCorrect
+                  ? (<><Check className="inline-icon" aria-hidden="true" /> Correct!</>)
+                  : (<><X className="inline-icon" aria-hidden="true" /> Wrong — correct positions shown in green</>)}
               </div>
             ) : (
               <button

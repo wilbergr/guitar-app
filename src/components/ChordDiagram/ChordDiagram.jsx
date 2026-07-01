@@ -1,3 +1,4 @@
+import { Circle, X } from 'lucide-react';
 import './ChordDiagram.css';
 
 const FINGER_COLORS = ['#888', '#ef4444', '#22c55e', '#3b82f6', '#f97316'];
@@ -97,32 +98,31 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
 
         {/* Open/muted indicators */}
         {chord.strings.map((fret, si) => {
+          const mark = isLarge ? 10 : 7;
           if (fret === 0) {
             return (
-              <text
+              <Circle
                 key={si}
-                x={stringX(si)}
-                y={topPad - 3}
-                textAnchor="middle"
-                fontSize={isLarge ? 10 : 7}
-                fill="#6ee7b7"
-              >
-                ○
-              </text>
+                x={stringX(si) - mark / 2}
+                y={topPad - mark - 1}
+                width={mark}
+                height={mark}
+                style={{ color: 'var(--success)' }}
+                aria-hidden="true"
+              />
             );
           }
           if (fret === -1) {
             return (
-              <text
+              <X
                 key={si}
-                x={stringX(si)}
-                y={topPad - 2}
-                textAnchor="middle"
-                fontSize={isLarge ? 9 : 6}
-                fill="#f87171"
-              >
-                ✕
-              </text>
+                x={stringX(si) - mark / 2}
+                y={topPad - mark - 1}
+                width={mark}
+                height={mark}
+                style={{ color: 'var(--danger)' }}
+                aria-hidden="true"
+              />
             );
           }
           return null;

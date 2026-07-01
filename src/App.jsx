@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Guitar, Target, BookOpen, Volume2, Music } from 'lucide-react';
 import './App.css';
 import InstrumentSelector from './components/InstrumentSelector/InstrumentSelector';
 import Fretboard from './components/Fretboard/Fretboard';
@@ -128,14 +129,16 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🎸 Guitar Learning App</h1>
+        <h1><Guitar className="app-title-icon" aria-hidden="true" /> Guitar Learning App</h1>
         <div className="header-controls">
           <InstrumentSelector instrument={instrument} onInstrumentChange={handleInstrumentChange} />
           <button
             className={`btn btn-primary challenge-toggle-btn${appMode === 'challenge' ? ' active' : ''}`}
             onClick={() => setAppMode(appMode === 'learn' ? 'challenge' : 'learn')}
           >
-            {appMode === 'learn' ? '🎯 Challenge' : '📚 Learn'}
+            {appMode === 'learn'
+              ? (<><Target aria-hidden="true" /> Challenge</>)
+              : (<><BookOpen aria-hidden="true" /> Learn</>)}
           </button>
         </div>
       </header>
@@ -151,7 +154,8 @@ export default function App() {
         <div className="app-content">
           {!audioReady && (
             <div className="audio-init-banner">
-              Click a chord or string to initialize audio 🔊
+              <Volume2 className="audio-init-icon" aria-hidden="true" />
+              Click a chord or string to initialize audio
             </div>
           )}
 
@@ -169,12 +173,12 @@ export default function App() {
                 <>
                   <ChordDiagram chord={selectedChord} isSelected size="large" />
                   <button className="btn btn-primary strum-btn" onClick={handleStrumChord}>
-                    🎵 Strum Chord
+                    <Music aria-hidden="true" /> Strum Chord
                   </button>
                 </>
               ) : pressedFrets.size > 0 ? (
                 <button className="btn btn-primary strum-btn" onClick={handleStrumPressedFrets}>
-                  🎵 Strum
+                  <Music aria-hidden="true" /> Strum
                 </button>
               ) : (
                 <div className="no-chord-hint">
@@ -189,7 +193,7 @@ export default function App() {
                 onStringPluck={handleFretPress}
                 pressedFrets={pressedFrets}
                 editMode={editMode}
-                onEditModeToggle={() => setEditMode((m) => !m)}
+                onEditModeChange={setEditMode}
                 onPlayString={handlePlayString}
                 orientation={isPhone ? 'portrait' : 'landscape'}
               />

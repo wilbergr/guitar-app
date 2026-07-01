@@ -104,3 +104,21 @@ svg {
   width: 44px;
   padding: 0;
 }
+
+/* Lucide icons inside buttons size to the button's font and inherit its color
+   (icons use stroke="currentColor"). Keeps icon sizing tied to typography
+   tokens rather than hardcoded pixel values. */
+.btn svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+
+/* Inline icon paired with text inside headings, labels, and status text.
+   Sizes to the surrounding font and aligns to the text baseline. */
+.inline-icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+  vertical-align: -0.15em;
+}

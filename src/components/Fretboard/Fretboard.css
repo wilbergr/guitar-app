@@ -51,8 +51,10 @@
   transform-origin: center center;
 }
 
-.fretboard-mode-toggle {
-  display: flex;
+/* Segmented control — Edit / Play. Track is a pill; the active segment is
+   the accent-filled .btn-primary, the inactive one is a ghost button. */
+.segmented-control {
+  display: inline-flex;
   gap: var(--space-1);
   margin-bottom: var(--space-3);
   background: var(--surface-2);
@@ -62,9 +64,10 @@
   width: fit-content;
 }
 
-.fretboard-mode-btn {
+.segmented-control .segment {
   border-radius: var(--radius-pill);
   font-size: 0.85rem;
+  min-height: 40px;
 }
 
 /* Fret-cell hit zones (inside SVG strings) */
