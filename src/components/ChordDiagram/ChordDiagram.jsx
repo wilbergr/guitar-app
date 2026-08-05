@@ -4,7 +4,7 @@ import './ChordDiagram.css';
 const FINGER_COLORS = ['#888', '#ef4444', '#22c55e', '#3b82f6', '#f97316'];
 const FRET_ROWS = 5;
 
-export default function ChordDiagram({ chord, isSelected, onClick, size = 'small' }) {
+export default function ChordDiagram({ chord, isSelected, onClick, size = 'small', showLabel = true }) {
   if (!chord) return null;
 
   const isLarge = size === 'large';
@@ -191,7 +191,7 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
         })}
       </svg>
 
-      {!isLarge && (
+      {!isLarge && showLabel && (
         <div className="chord-diagram-label">{chord.shortName}</div>
       )}
       {isLarge && chord.description && (

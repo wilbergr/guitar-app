@@ -503,8 +503,8 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
                     {badge === 'correct' ? <Check /> : <X />}
                   </span>
                 )}
-                <ChordDiagram chord={opt} size="small" />
-                <div className="option-card-name">{opt.name}</div>
+                <ChordDiagram chord={opt} size="small" showLabel={answered} />
+                {answered && <div className="option-card-name">{opt.name}</div>}
               </div>
             );
           })}
