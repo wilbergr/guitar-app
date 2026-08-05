@@ -411,15 +411,12 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
             </div>
           )}
           {CHALLENGE_RIDDLES[challengeType] && (
-            <details className="challenge-riddle">
-              <summary>
-                <Target className="inline-icon" aria-hidden="true" /> A riddle for finishing — tap to reveal the answer
-              </summary>
+            <div className="challenge-riddle">
+              <span className="challenge-riddle-label">
+                <Target className="inline-icon" aria-hidden="true" /> A riddle for finishing
+              </span>
               <p className="challenge-riddle-text">{CHALLENGE_RIDDLES[challengeType].riddle}</p>
-              <p className="challenge-riddle-answer">
-                Answer: <strong>{CHALLENGE_RIDDLES[challengeType].answer}</strong>
-              </p>
-            </details>
+            </div>
           )}
           <div className="results-actions">
             <button className="btn btn-primary result-btn primary" onClick={() => startChallenge(!isPractice)}>
