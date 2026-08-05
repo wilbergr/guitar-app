@@ -417,6 +417,33 @@
   font-size: 0.85rem;
 }
 
+/* Completion easter-egg riddle (one per challenge type) */
+.challenge-riddle {
+  width: 100%;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+}
+
+.challenge-riddle-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.challenge-riddle-text {
+  margin: var(--space-3) 0 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-style: italic;
+}
+
 /* Per-question round review */
 .results-review {
   width: 100%;

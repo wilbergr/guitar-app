@@ -45,3 +45,10 @@ The ≥90% reward code lives in `challenge-config.json` (fetched at runtime, rel
 ## `useCallback` dependency arrays are evaluated during render (TDZ gotcha)
 
 In `ChordChallenge.jsx` the callbacks form a chain where later ones are referenced by earlier ones (e.g. `advanceRound` is defined after `handleTimeout`/`handleSkip`). It is safe to *call* a later-declared `const` from inside a `useCallback` body (closure, runs later), but listing it in the dependency array throws `ReferenceError: Cannot access '<x>' before initialization` at render because the array is evaluated immediately. Follow the existing pattern: omit the forward reference from the deps and add `// eslint-disable-line react-hooks/exhaustive-deps` (as `handleTimeout` and `handleSkip` do).
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.

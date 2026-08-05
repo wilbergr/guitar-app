@@ -15,6 +15,19 @@ const TOTAL_ROUNDS = 15;
 const TIME_PER_ROUND = 10;
 const PASS_THRESHOLD = 0.75;
 
+// Easter-egg riddles revealed on the results screen, one per challenge type.
+// Each riddle's answer is a single number; the reveal is a simple <details> toggle.
+const CHALLENGE_RIDDLES = {
+  diagram: {
+    riddle: 'Count every fret from the first to the twelfth, then stack the numbers in one growing heap — one, then two, then three, and on you creep, till the octave rings and the total’s yours to keep. What number am I?',
+    answer: '78',
+  },
+  placement: {
+    riddle: 'A perfect square is hiding on the neck: three strings side by side, three frets stacked in a deck. Grid them together to find what I select. What number am I?',
+    answer: '9',
+  },
+};
+
 function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -395,6 +408,14 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+          {CHALLENGE_RIDDLES[challengeType] && (
+            <div className="challenge-riddle">
+              <span className="challenge-riddle-label">
+                <Target className="inline-icon" aria-hidden="true" /> A riddle for finishing
+              </span>
+              <p className="challenge-riddle-text">{CHALLENGE_RIDDLES[challengeType].riddle}</p>
             </div>
           )}
           <div className="results-actions">
