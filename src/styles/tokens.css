@@ -26,6 +26,12 @@
   --danger: #f87171;
   --warning: #fbbf24;
 
+  /* Pink — the physical pink padlock the Chord Challenge riddles map to.
+     Dark theme: a bright pink that stays legible on dark surfaces. */
+  --pink: #f4a6c4;
+  --pink-bg: rgba(244, 166, 196, 0.14);
+  --pink-border: rgba(244, 166, 196, 0.42);
+
   /* Fretboard & chord-diagram SVG colors.
      These drive presentation on the wooden board / diagram grid, which is not a
      standard surface token. Dark defaults here; light overrides below. var()
@@ -86,6 +92,10 @@
   --success: #15803d;
   --danger: #dc2626;
   --warning: #b45309;
+  /* Pink darkened vs dark theme so it clears AA (4.5:1) as small text on white. */
+  --pink: #c2185b;
+  --pink-bg: rgba(194, 24, 91, 0.10);
+  --pink-border: rgba(194, 24, 91, 0.38);
   --shadow-md: 0 4px 12px rgba(60, 50, 40, 0.15);
   /* Fretboard/diagram: dark defaults are white-translucent (built for the dark
      board) and vanish on a light board. Swap to dark, warm-toned ink so
@@ -114,6 +124,9 @@
     --success: #15803d;
     --danger: #dc2626;
     --warning: #b45309;
+    --pink: #c2185b;
+    --pink-bg: rgba(194, 24, 91, 0.10);
+    --pink-border: rgba(194, 24, 91, 0.38);
     --shadow-md: 0 4px 12px rgba(60, 50, 40, 0.15);
     --fret-board-bg: rgba(120, 80, 40, 0.10);
     --fret-string: #5c4a33;

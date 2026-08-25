@@ -414,6 +414,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
                 <Target className="inline-icon" aria-hidden="true" /> A riddle for finishing
               </span>
               <p className="challenge-riddle-text">{CHALLENGE_RIDDLES[challengeType].riddle}</p>
+              <span className="challenge-riddle-padlock">
+                <Lock className="inline-icon" aria-hidden="true" />
+                Pink padlock — combine this answer with the other Chord Challenge riddle&apos;s answer (this one first) for the full 4-digit code.
+              </span>
             </div>
           )}
           <div className="results-actions">
