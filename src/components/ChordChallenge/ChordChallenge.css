@@ -260,8 +260,42 @@
 }
 
 .option-card-name {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.8rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Reveal legibility: give the answered grid a touch more room for the larger
+   (medium) diagrams and a clear gap before the Continue button. */
+.options-grid.revealed {
+  max-width: 640px;
+}
+
+/* Root-cause fix for "markers/positions intermittently don't render": the
+   diagram SVG is transparent, so a correct/wrong card's green/red tint bleeds
+   through and camouflages same-hue glyphs — the green open-string circles on
+   the green "correct" card and the red muted-string X's on the red "wrong"
+   card — plus the low-contrast fret/string lines. Seat the diagram on an opaque
+   neutral panel so every fret line, string, open and mute marker keeps full
+   contrast no matter which answer tint the card carries. */
+.option-card.correct .chord-diagram-wrapper,
+.option-card.wrong .chord-diagram-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Manual-advance control shown once the diagram round is answered (replaces the
+   old auto-advance timer so the player can study the reveal). */
+.reveal-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.continue-btn {
+  min-width: 220px;
 }
 
 /* Placement challenge */
