@@ -160,8 +160,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     if (answered) return;
     setAnswered(true);
     recordOutcome('timeout', TIME_PER_ROUND * 1000);
-    setTimeout(() => advanceRound(), 2000);
-  }, [answered, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Diagram challenge waits for a manual Continue (see the reveal button) so
+    // the player can study what they missed; placement keeps its auto-advance.
+    if (challengeType !== 'diagram') setTimeout(() => advanceRound(), 2000);
+  }, [answered, challengeType, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSkip = useCallback(() => {
     if (answered || placementSubmitted) return;
@@ -170,8 +172,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     setPaused(false);
     const elapsed = Date.now() - roundStartTime.current;
     recordOutcome('skipped', elapsed);
-    setTimeout(() => advanceRound(), 700);
-  }, [answered, placementSubmitted, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Diagram challenge reveals the answer and waits for Continue; placement
+    // auto-advances as before.
+    if (challengeType !== 'diagram') setTimeout(() => advanceRound(), 700);
+  }, [answered, challengeType, placementSubmitted, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const advanceRound = useCallback(() => {
     const nextRound = round + 1;
@@ -197,9 +201,9 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     audioService.playChord(optionChord, tuning.notes, 'down');
 
     recordOutcome(isCorrect ? 'correct' : 'wrong', elapsed);
-
-    setTimeout(() => advanceRound(), isPractice ? 1500 : 1000);
-  }, [answered, question, ensureAudioReady, advanceRound, isPractice, recordOutcome]);
+    // No auto-advance: the reveal stays up until the player clicks Continue so
+    // they can compare the diagrams and see what they got wrong.
+  }, [answered, question, ensureAudioReady, recordOutcome]);
 
   const handleFingerPlace = useCallback((stringIndex, fret) => {
     if (placementSubmitted) return;
@@ -496,7 +500,8 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
       </div>
 
       {challengeType === 'diagram' ? (
-        <div className="options-grid" role="group" aria-label={`Pick the diagram for ${question.correct.name}`}>
+        <>
+        <div className={`options-grid${answered ? ' revealed' : ''}`} role="group" aria-label={`Pick the diagram for ${question.correct.name}`}>
           {question.options.map((opt) => {
             let cardClass = 'option-card';
             let badge = null;
@@ -526,12 +531,24 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
                     {badge === 'correct' ? <Check /> : <X />}
                   </span>
                 )}
-                <ChordDiagram chord={opt} size="small" showLabel={answered} />
+                <ChordDiagram chord={opt} size={answered ? 'medium' : 'small'} showLabel={answered} />
                 {answered && <div className="option-card-name">{opt.name}</div>}
               </div>
             );
           })}
         </div>
+        {answered && (
+          <div className="reveal-actions">
+            <button
+              className="btn btn-primary continue-btn"
+              onClick={advanceRound}
+              autoFocus
+            >
+              {!isPractice && round + 1 >= TOTAL_ROUNDS ? 'See Results' : 'Continue'}
+            </button>
+          </div>
+        )}
+        </>
       ) : (
         <>
           <div className="placement-hint">

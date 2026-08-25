@@ -8,14 +8,17 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
   if (!chord) return null;
 
   const isLarge = size === 'large';
+  const isMedium = size === 'medium';
   const stringCount = chord.strings.length;
-  const cellW = isLarge ? 28 : 18;
-  const cellH = isLarge ? 24 : 16;
-  const r = isLarge ? 9 : 6;
-  const fontSize = isLarge ? 9 : 6;
+  const cellW = isLarge ? 28 : isMedium ? 26 : 18;
+  const cellH = isLarge ? 24 : isMedium ? 22 : 16;
+  const r = isLarge ? 9 : isMedium ? 8 : 6;
+  const fontSize = isLarge ? 9 : isMedium ? 8 : 6;
 
-  const leftPad = chord.startFret > 1 ? (isLarge ? 22 : 16) : 0;
-  const topPad = isLarge ? 18 : 12; // space for open/muted symbols
+  const leftPad = chord.startFret > 1 ? (isLarge ? 22 : isMedium ? 20 : 16) : 0;
+  const topPad = isLarge ? 18 : isMedium ? 16 : 12; // space for open/muted symbols
+  // Open/muted marker glyph size, scaled per diagram size.
+  const mark = isLarge ? 10 : isMedium ? 9 : 7;
   const svgW = leftPad + stringCount * cellW + 4;
   const svgH = topPad + FRET_ROWS * cellH + 4;
 
@@ -98,7 +101,6 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
 
         {/* Open/muted indicators */}
         {chord.strings.map((fret, si) => {
-          const mark = isLarge ? 10 : 7;
           if (fret === 0) {
             return (
               <Circle
