@@ -46,6 +46,20 @@ The ≥90% reward code lives in `challenge-config.json` (fetched at runtime, rel
 
 In `ChordChallenge.jsx` the callbacks form a chain where later ones are referenced by earlier ones (e.g. `advanceRound` is defined after `handleTimeout`/`handleSkip`). It is safe to *call* a later-declared `const` from inside a `useCallback` body (closure, runs later), but listing it in the dependency array throws `ReferenceError: Cannot access '<x>' before initialization` at render because the array is evaluated immediately. Follow the existing pattern: omit the forward reference from the deps and add `// eslint-disable-line react-hooks/exhaustive-deps` (as `handleTimeout` and `handleSkip` do).
 
+## Chord diagrams are transparent — reveal tints camouflage same-hue glyphs
+
+`ChordDiagram`'s SVG has no background, so whatever card sits behind it shows through.
+In `ChordChallenge` the answered option cards get a green (`.correct`) / red (`.wrong`)
+reveal tint, which **camouflages markers of the same hue** — green open-string circles
+(`var(--success)`) vanish on the green card, red muted-string X's (`var(--danger)`) vanish
+on the red card, and the low-alpha `--diagram-line`/`--diagram-string` grid loses contrast.
+This reads as "positions/mutes intermittently don't render" (only the answered cards, only
+the matching hue, only chords with those glyphs). Fix in `ChordChallenge.css`: seat the
+diagram on an opaque `--surface` panel (`.option-card.correct/.wrong .chord-diagram-wrapper`).
+The chord data itself is clean — all 42 chords satisfy `0 ≤ fret - startFret < FRET_ROWS(5)`,
+so the hardcoded `FRET_ROWS` window is not a rendering risk for the current data.
+`ChordDiagram` sizes are `small | medium | large`; only `large` renders the name/meta/description text blocks.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.
