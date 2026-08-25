@@ -408,6 +408,27 @@
   font-style: italic;
 }
 
+/* Pink padlock chip — both riddle types feed one physical pink padlock.
+   Colors come from theme-aware --pink tokens so it stays legible light/dark. */
+.challenge-riddle-padlock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--pink-bg);
+  border: 1px solid var(--pink-border);
+  border-radius: var(--radius-md);
+  color: var(--pink);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.challenge-riddle-padlock .inline-icon {
+  color: var(--pink);
+}
+
 /* Per-question round review */
 .results-review {
   width: 100%;
