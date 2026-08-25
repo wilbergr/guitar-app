@@ -278,42 +278,6 @@
   text-align: center;
 }
 
-.string-toggle-row {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.string-toggle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.string-toggle span {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-
-/* Active open/mute toggles: the Circle vs X icon already distinguishes the two
-   controls by shape; the thicker (2px) border here reinforces the pressed
-   state without depending on the green/red tint being perceivable. */
-.toggle-btn.open-active {
-  background: rgba(74, 222, 128, 0.15);
-  border-color: var(--success);
-  border-width: 2px;
-  color: var(--success);
-}
-
-.toggle-btn.mute-active {
-  background: rgba(248, 113, 113, 0.15);
-  border-color: var(--danger);
-  border-width: 2px;
-  color: var(--danger);
-}
-
 .placement-feedback {
   font-size: 1rem;
   font-weight: 700;

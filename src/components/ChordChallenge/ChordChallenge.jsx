@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Target, BarChart3, Guitar, BookOpen, Timer, ArrowLeft,
-  PartyPopper, Dumbbell, Check, X, Unlock, Circle,
+  PartyPopper, Dumbbell, Check, X, Unlock,
   Lock, Pause, Play, SkipForward, Clock,
 } from 'lucide-react';
 import './ChordChallenge.css';
@@ -215,16 +215,6 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     });
   }, [placementSubmitted]);
 
-  const handleOpenToggle = useCallback((si) => {
-    if (placementSubmitted) return;
-    setPlacedFingers((prev) => {
-      const next = new Map(prev);
-      next.set(si, next.get(si) === 0 ? undefined : 0);
-      if (next.get(si) === undefined) next.delete(si);
-      return next;
-    });
-  }, [placementSubmitted]);
-
   const handleMuteToggle = useCallback((si) => {
     if (placementSubmitted) return;
     setPlacedFingers((prev) => {
@@ -244,7 +234,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
 
     let allMatch = true;
     for (let si = 0; si < stringCount; si++) {
-      const placed = placedFingers.get(si);
+      // An untouched string means "open" (fret 0), matching the app-wide
+      // absent-entry convention (see CLAUDE.md "Play-mode fret resolution").
+      // `-1` (muted) and explicit frets stay as-is under `?? 0`.
+      const placed = placedFingers.get(si) ?? 0;
       const expected = correctStrings[si];
       if (placed !== expected) {
         allMatch = false;
@@ -275,8 +268,13 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     ? Math.round(results.times.reduce((a, b) => a + b, 0) / results.times.length / 100) / 10
     : 0;
 
-  const tuning = TUNINGS[instrument];
   const hasCodeReward = !!challengeConfig?.chordChallengeCode;
+
+  // The placement fretboard's mute state is derived from placedFingers (a string
+  // is muted when its value is -1) so there is one source of truth. The shared
+  // Fretboard nut checkbox toggles this via onToggleMute={handleMuteToggle}.
+  const placementMutedStrings = new Set();
+  placedFingers.forEach((fret, si) => { if (fret === -1) placementMutedStrings.add(si); });
 
   if (screen === SCREEN.SELECT_TYPE) {
     return (
@@ -533,32 +531,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
       ) : (
         <>
           <div className="placement-hint">
-            Click frets to place fingers. Use open/mute toggles per string.
-          </div>
-          <div className="string-toggle-row">
-            {tuning.stringNames.map((name, si) => (
-              <div key={si} className="string-toggle">
-                <span>{name}</span>
-                <button
-                  className={`btn btn-icon btn-secondary toggle-btn${placedFingers.get(si) === 0 ? ' open-active' : ''}`}
-                  onClick={() => handleOpenToggle(si)}
-                  disabled={placementSubmitted}
-                  aria-label={`Play string ${name} open`}
-                  aria-pressed={placedFingers.get(si) === 0}
-                >
-                  <Circle aria-hidden="true" />
-                </button>
-                <button
-                  className={`btn btn-icon btn-secondary toggle-btn${placedFingers.get(si) === -1 ? ' mute-active' : ''}`}
-                  onClick={() => handleMuteToggle(si)}
-                  disabled={placementSubmitted}
-                  aria-label={`Mute string ${name}`}
-                  aria-pressed={placedFingers.get(si) === -1}
-                >
-                  <X aria-hidden="true" />
-                </button>
-              </div>
-            ))}
+            Tap frets to place fingers. Leave a string blank to play it open, or tick its box by the nut to mute it.
           </div>
           <Fretboard
             instrument={instrument}
@@ -568,6 +541,8 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
             placementMode={true}
             placedFingers={placedFingers}
             onFingerPlace={handleFingerPlace}
+            mutedStrings={placementMutedStrings}
+            onToggleMute={placementSubmitted ? undefined : handleMuteToggle}
             correctFingers={placementSubmitted && !placementCorrect ? correctFingers : null}
             orientation={orientation}
           />
