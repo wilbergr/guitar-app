@@ -23,8 +23,8 @@ const CHALLENGE_RIDDLES = {
     answer: '78',
   },
   placement: {
-    riddle: 'A perfect square is hiding on the neck: three strings side by side, three frets stacked in a deck. Grid them together to find what I select. What number am I?',
-    answer: '9',
+    riddle: 'Two identical grids hide on the neck, each a perfect square: three strings side by side, three frets stacked in a deck. Count one grid’s cells, then write that count twice, side by side, to spell a two-digit number. What number am I?',
+    answer: '99',
   },
 };
 
