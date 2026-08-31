@@ -56,9 +56,25 @@ on the red card, and the low-alpha `--diagram-line`/`--diagram-string` grid lose
 This reads as "positions/mutes intermittently don't render" (only the answered cards, only
 the matching hue, only chords with those glyphs). Fix in `ChordChallenge.css`: seat the
 diagram on an opaque `--surface` panel (`.option-card.correct/.wrong .chord-diagram-wrapper`).
-The chord data itself is clean — all 42 chords satisfy `0 ≤ fret - startFret < FRET_ROWS(5)`,
+The chord data itself is clean — every chord satisfies `1 ≤ fret ≤ FRET_ROWS(5)`,
 so the hardcoded `FRET_ROWS` window is not a rendering risk for the current data.
 `ChordDiagram` sizes are `small | medium | large`; only `large` renders the name/meta/description text blocks.
+
+## Chord diagrams & fretboard render at ABSOLUTE fret positions
+
+Both `ChordDiagram.jsx` and the interactive `Fretboard`/`GuitarString` place every dot,
+barre, and open/muted glyph at its **absolute** fret: fret N renders on row/cell index
+`N-1` (the diagram is always nut-anchored, with fret-row numbers 1..5 down the left edge).
+There is no `startFret` field anymore — do not reintroduce a relative window. Because
+`ChordDiagram` has a fixed `FRET_ROWS = 5`, **every voicing in `src/data/chords.js` must
+keep all fretted notes within frets 1–5** (a chord above fret 5 would silently clip). The
+audio path (`audioService.playNote/playChord`, `App.jsx` handlers) already treats
+`strings[]` values as absolute frets, so display and playback stay in sync. Authoritative
+chord charts the data was transcribed from live at `firstmate/data/chords/*.png` (note the
+`major_7th_chords.png` file actually holds **dominant** 7ths). Chord `type` values in use:
+`major | minor | dominant7 | major7 | minor7 | power`; everything is data-driven (group
+labels in `ChordList.jsx` `TYPE_LABELS`, meta labels in `ChordDiagram.jsx` `TYPE_DISPLAY`,
+challenge decoys filtered by `type` in `chordUtils.getDecoyChords`) — no hardcoded type enum.
 
 ## Maintaining this file
 
