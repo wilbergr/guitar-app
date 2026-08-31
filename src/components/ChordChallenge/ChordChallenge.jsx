@@ -554,7 +554,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
       ) : (
         <>
           <div className="placement-hint">
-            Tap frets to place fingers. Leave a string blank to play it open, or tick its box by the nut to mute it.
+            Tap frets to place fingers. Leave a string open (○) by default, or tap its nut symbol to mute it (✕).
           </div>
           <Fretboard
             instrument={instrument}
