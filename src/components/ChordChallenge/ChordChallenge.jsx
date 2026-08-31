@@ -129,7 +129,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
         if (t <= 1) {
           clearInterval(timerRef.current);
           // Time's up = wrong
-          handleTimeout();
+          handleTimeout(); // eslint-disable-line react-hooks/immutability
           return 0;
         }
         return t - 1;
@@ -162,7 +162,9 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     recordOutcome('timeout', TIME_PER_ROUND * 1000);
     // Diagram challenge waits for a manual Continue (see the reveal button) so
     // the player can study what they missed; placement keeps its auto-advance.
-    if (challengeType !== 'diagram') setTimeout(() => advanceRound(), 2000);
+    // advanceRound is declared below; the closure only runs later (see CLAUDE.md
+    // TDZ gotcha), so the compiler's forward-reference check is safe to disable.
+    if (challengeType !== 'diagram') setTimeout(() => advanceRound(), 2000); // eslint-disable-line react-hooks/immutability
   }, [answered, challengeType, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSkip = useCallback(() => {
@@ -177,7 +179,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     if (challengeType !== 'diagram') setTimeout(() => advanceRound(), 700);
   }, [answered, challengeType, placementSubmitted, recordOutcome]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const advanceRound = useCallback(() => {
+  const advanceRound = useCallback(() => { // eslint-disable-line react-hooks/preserve-manual-memoization
     const nextRound = round + 1;
     if (!isPractice && nextRound >= TOTAL_ROUNDS) {
       setScreen(SCREEN.RESULTS);
