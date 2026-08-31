@@ -29,10 +29,18 @@ handlers (`handleStrumPressedFrets`, `handleStrumChord`) `continue` past muted i
 `mutedStrings.size > 0` (so `audioService.playChord`, which ignores user mutes, isn't used
 when a mute is active). Fretting a string in Edit mode clears its mute (mutually exclusive
 states). `mutedStrings` is reset on instrument change and chord select, alongside
-`pressedFrets`. The nut glyph priority per string is: user-mute X > chord open/mute glyph >
-a faint "tap to mute" affordance circle (edit mode only). The mute toggle is a keyboard-
-operable SVG `role="button"` (`.mute-toggle`) with `aria-pressed`/`aria-label`, mirroring
-the fret-cell a11y pattern.
+`pressedFrets`. The nut glyph in the interactive modes (Edit + the placement challenge,
+gated by `diagramNut = placementMode || editMode` in `Fretboard.jsx`) uses the **chord-diagram
+vocabulary** so both notations match: a fretted string shows **no** glyph, and every other
+string shows a red `X` (muted) or a green open `Circle` (the default resting state, which is
+itself the tap target). "Muted" here means the user mute layer OR, in edit mode, a selected
+chord's own `-1` string; there is no ticked-checkbox or empty-square affordance anymore.
+`diagramNut` deliberately stays true on the placement reveal (`onToggleMute` cleared) so the
+glyphs persist for feedback; the separate `muteInteractive` (`diagramNut && !!onToggleMute`)
+gates only the tap/keyboard hit zone. Play mode (neither flag) stays static and renders only
+the selected chord's open/mute glyphs. The mute toggle is a keyboard-operable SVG
+`role="button"` (`.mute-toggle`, with a hover/focus fill cue in `Fretboard.css`) carrying
+`aria-pressed`/`aria-label`, mirroring the fret-cell a11y pattern.
 
 ## Audio gating & transient UI (App.jsx)
 

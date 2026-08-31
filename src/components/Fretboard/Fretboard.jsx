@@ -192,10 +192,16 @@ export default function Fretboard({
           // Open/muted indicators above nut
           const nutX = fretXPositions[0] - 14;
           const isMuted = mutedStrings ? mutedStrings.has(si) : false;
-          // The nut mute checkbox is interactive both in learn-area edit mode and
-          // in the placement challenge (which supplies its own onToggleMute derived
-          // from placedFingers). Play mode (no editMode, no placement) stays static.
-          const muteInteractive = (placementMode || editMode) && !!onToggleMute;
+          // Two related gates. `diagramNut` decides whether the nut uses the
+          // chord-diagram vocabulary (open Circle / muted X on every unfretted
+          // string): true in learn-area edit mode and the placement challenge —
+          // including the placement reveal, where the glyphs must persist so the
+          // player can still read their muted/open choices. `muteInteractive`
+          // additionally requires a handler and gates the tap/keyboard hit zone,
+          // so after a placement submit (onToggleMute cleared) the glyphs stay
+          // but the toggle is inert. Play mode (neither) stays static.
+          const diagramNut = placementMode || editMode;
+          const muteInteractive = diagramNut && !!onToggleMute;
 
           // Placement mode: get user placed value
           const placedFret = placedFingers ? placedFingers.get(si) : undefined;
@@ -235,7 +241,7 @@ export default function Fretboard({
                   open Circle (the default resting state, which is also the tap
                   target). Play mode is static and reflects only what the selected
                   chord specifies. */}
-              {muteInteractive ? (
+              {diagramNut ? (
                 isFretted ? null : isMutedGlyph ? (
                   <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
                 ) : (
