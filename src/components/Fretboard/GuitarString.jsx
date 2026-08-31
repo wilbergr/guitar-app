@@ -16,7 +16,6 @@ export default function GuitarString({
   fingerNumber,   // 1-4 or null
   isBarreString,  // this string is covered by barre
   barreFret,      // fret of the barre if applicable
-  startFret,      // first fret visible in diagram
   onPluck,        // (stringIndex, fret) => void — edit mode
   pressedFret,    // user-pressed fret in learn mode (absolute fret number)
   editMode = true,
@@ -45,7 +44,9 @@ export default function GuitarString({
   // If the user has pressed any fret on this string, it overrides chord data entirely.
   const hasUserPress = pressedFret !== undefined;
   const showChordDot = !hasUserPress && selectedFret !== undefined && selectedFret > 0;
-  const dotFretIndex = showChordDot ? selectedFret - startFret : -1;
+  // The fretboard is a full board anchored at the nut, so chord frets map to
+  // absolute cells: fret N lives in cell index N-1 (fi=0 is fret 1).
+  const dotFretIndex = showChordDot ? selectedFret - 1 : -1;
 
   return (
     <g>
@@ -88,7 +89,7 @@ export default function GuitarString({
             const color = FINGER_COLORS[fingerNumber] || FINGER_COLORS[0];
             dotColor = color;
             dotLabel = fingerNumber ? String(fingerNumber) : null;
-          } else if (!hasUserPress && isBarreString && barreFret !== undefined && barreFret - startFret === fi) {
+          } else if (!hasUserPress && isBarreString && barreFret !== undefined && barreFret - 1 === fi) {
             dotColor = FINGER_COLORS[1];
             dotLabel = '1';
           }

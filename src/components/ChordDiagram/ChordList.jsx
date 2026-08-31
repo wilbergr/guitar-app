@@ -8,6 +8,9 @@ import useMediaQuery from '../../hooks/useMediaQuery';
 const TYPE_LABELS = {
   major: 'Major Chords',
   minor: 'Minor Chords',
+  dominant7: 'Dominant 7th Chords',
+  major7: 'Major 7th Chords',
+  minor7: 'Minor 7th Chords',
   power: 'Power Chords',
 };
 
