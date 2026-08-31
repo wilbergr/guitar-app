@@ -71,18 +71,30 @@ export default function GuitarString({
         let dotColor = null;
         let dotLabel = null;
         let pressedDotHere = false;
-        // The revealed correct answer (placement mode, after a wrong submit).
-        // Drawn as an outlined ring so it reads distinctly from the user's
-        // solid orange placement dot without relying on color perception.
-        let isCorrectMarker = false;
+        // Placement reveal (after a wrong submit) uses three distinct treatments
+        // so right-vs-wrong reads at a glance without relying on colour alone:
+        //  · isHitMarker — a fret the player placed AND got right. Solid green
+        //    disc + white check: "you nailed this one."
+        //  · isAnswerMarker — a correct fret the player MISSED. Bold hollow green
+        //    ring (thick stroke, faint fill): "the answer was here." Dominant but
+        //    visibly different from a hit (fill differs, no check).
+        //  · isGhostMarker — the player's own WRONG placement. Recessive: a dim,
+        //    dashed, translucent orange ring — the captain's "ghost".
+        let isHitMarker = false;
+        let isAnswerMarker = false;
+        let isGhostMarker = false;
 
         if (placementMode) {
-          if (placedFret === actualFret) {
+          const isReveal = correctFret !== undefined;
+          const placedHere = placedFret === actualFret;
+          const correctHere = correctFret === actualFret; // correctFret is a real fret (>0) here
+          if (isReveal) {
+            if (correctHere && placedHere) isHitMarker = true;
+            else if (correctHere) isAnswerMarker = true;
+            else if (placedHere) isGhostMarker = true;
+          } else if (placedHere) {
             dotColor = '#f5a623';
             dotLabel = '●';
-          }
-          if (correctFret !== undefined && correctFret === actualFret && placedFret !== actualFret) {
-            isCorrectMarker = true;
           }
         } else {
           if (dotFretIndex === fi) {
@@ -147,17 +159,55 @@ export default function GuitarString({
                 {dotLabel}
               </text>
             )}
-            {isCorrectMarker && (
+            {isGhostMarker && (
               <circle
                 className="fret-dot"
                 cx={midX}
                 cy={y}
-                r={9}
-                fill="none"
-                stroke="#22c55e"
-                strokeWidth={2.5}
+                r={8}
+                fill="#f5a623"
+                fillOpacity={0.18}
+                stroke="#f5a623"
+                strokeOpacity={0.6}
+                strokeWidth={2}
                 strokeDasharray="3 2"
               />
+            )}
+            {isAnswerMarker && (
+              <circle
+                className="fret-dot"
+                cx={midX}
+                cy={y}
+                r={10}
+                fill="#22c55e"
+                fillOpacity={0.18}
+                stroke="#22c55e"
+                strokeWidth={3}
+              />
+            )}
+            {isHitMarker && (
+              <>
+                <circle
+                  className="fret-dot"
+                  cx={midX}
+                  cy={y}
+                  r={10}
+                  fill="#22c55e"
+                  stroke="#14532d"
+                  strokeWidth={1.5}
+                />
+                <text
+                  className="fret-cell-label"
+                  x={midX}
+                  y={y + 4}
+                  textAnchor="middle"
+                  fontSize={12}
+                  fontWeight="bold"
+                  fill="white"
+                >
+                  ✓
+                </text>
+              </>
             )}
             {pressedDotHere && (
               <circle className="fret-dot" cx={midX} cy={y} r={9} fill="#a78bfa" opacity={0.95} />
