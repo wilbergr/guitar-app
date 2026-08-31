@@ -83,6 +83,15 @@ chord charts the data was transcribed from live at `firstmate/data/chords/*.png`
 `major | minor | dominant7 | major7 | minor7 | power`; everything is data-driven (group
 labels in `ChordList.jsx` `TYPE_LABELS`, meta labels in `ChordDiagram.jsx` `TYPE_DISPLAY`,
 challenge decoys filtered by `type` in `chordUtils.getDecoyChords`) — no hardcoded type enum.
+All three seventh families exist for **all three** instruments (guitar/bass/ukulele).
+Bass sevenths are two-note **root+7th dyads** (like the existing root+5th power chords):
+`dominant7` and `minor7` are the *same two notes* (root + b7) and render identically — a
+deliberate, captain-accepted choice, since the 3rd that distinguishes them is absent from a
+dyad. Do not "fix" this by adding a note or dropping a family; each dyad's `description`
+says the shape serves both. They never collide in Diagram Recognition because
+`getDecoyChords` filters by `type` (7 chords per type ≥ the 4 shown, so no cross-type
+fallback). Ukulele sevenths are standard 4-note GCEA voicings; the re-entrant G4 string
+means "spells the chord" is about pitch classes present, not stacked order.
 
 ## Maintaining this file
 
