@@ -82,8 +82,6 @@ export default function Fretboard({
     (_, i) => LEFT_MARGIN + i * FRET_WIDTH_MIN
   );
 
-  const startFret = selectedChord?.startFret ?? 1;
-
   const svgEl = (
       <svg
         className={`fretboard-svg${isPortrait ? ' fretboard-svg-portrait' : ''}`}
@@ -265,7 +263,6 @@ export default function Fretboard({
                 fingerNumber={fingerNumber}
                 isBarreString={isBarreString && !placementMode}
                 barreFret={barreFret}
-                startFret={startFret}
                 onPluck={onStringPluck}
                 pressedFret={pressedFret}
                 editMode={editMode}
@@ -282,7 +279,8 @@ export default function Fretboard({
         {/* Barre chord bar overlay */}
         {selectedChord?.barre && !placementMode && (() => {
           const b = selectedChord.barre;
-          const fretIndex = b.fret - startFret;
+          // Absolute board: barre at fret N occupies cell index N-1.
+          const fretIndex = b.fret - 1;
           if (fretIndex < 0 || fretIndex >= TOTAL_FRETS) return null;
 
           const x1 = fretXPositions[fretIndex];

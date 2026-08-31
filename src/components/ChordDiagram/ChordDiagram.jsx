@@ -4,6 +4,17 @@ import './ChordDiagram.css';
 const FINGER_COLORS = ['#888', '#ef4444', '#22c55e', '#3b82f6', '#f97316'];
 const FRET_ROWS = 5;
 
+// Friendly labels for the large-diagram meta line (the raw `type` slugs like
+// "dominant7" read poorly). Falls back to the raw type when unmapped.
+const TYPE_DISPLAY = {
+  major: 'Major',
+  minor: 'Minor',
+  dominant7: 'Dominant 7th',
+  major7: 'Major 7th',
+  minor7: 'Minor 7th',
+  power: 'Power Chord',
+};
+
 export default function ChordDiagram({ chord, isSelected, onClick, size = 'small', showLabel = true }) {
   if (!chord) return null;
 
@@ -15,7 +26,11 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
   const r = isLarge ? 9 : isMedium ? 8 : 6;
   const fontSize = isLarge ? 9 : isMedium ? 8 : 6;
 
-  const leftPad = chord.startFret > 1 ? (isLarge ? 22 : isMedium ? 20 : 16) : 0;
+  // Diagrams always render from the nut (fret 1 at the top row). The left pad
+  // reserves room for the fret-row numbers (1..5) down the left edge, matching
+  // the reference charts.
+  const rowLabelSize = isLarge ? 9 : isMedium ? 8 : 6;
+  const leftPad = isLarge ? 14 : isMedium ? 12 : 10;
   const topPad = isLarge ? 18 : isMedium ? 16 : 12; // space for open/muted symbols
   // Open/muted marker glyph size, scaled per diagram size.
   const mark = isLarge ? 10 : isMedium ? 9 : 7;
@@ -24,7 +39,7 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
 
   // X position for each string (0-indexed, 0=thickest)
   const stringX = (si) => leftPad + si * cellW + cellW / 2;
-  // Y position for each fret row (0-indexed, 0=first visible fret)
+  // Y position for the center of an absolute fret row (fi=0 → fret 1)
   const fretY = (fi) => topPad + fi * cellH + cellH / 2;
 
   return (
@@ -37,7 +52,7 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
       )}
       {isLarge && (
         <div className="chord-display-meta">
-          {chord.instrument} · {chord.type}
+          {chord.instrument} · {TYPE_DISPLAY[chord.type] || chord.type}
           {chord.barre && ' · Barre'}
         </div>
       )}
@@ -48,30 +63,29 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
         height={svgH}
         viewBox={`0 0 ${svgW} ${svgH}`}
       >
-        {/* Fret number label if startFret > 1 */}
-        {chord.startFret > 1 && (
+        {/* Fret-row numbers down the left edge (1..5) */}
+        {Array.from({ length: FRET_ROWS }, (_, fi) => (
           <text
-            x={leftPad - 4}
-            y={topPad + cellH / 2 + 3}
+            key={fi}
+            x={leftPad - 3}
+            y={fretY(fi) + rowLabelSize / 2 - 1}
             textAnchor="end"
-            fontSize={isLarge ? 9 : 6}
+            fontSize={rowLabelSize}
             style={{ fill: 'var(--diagram-fret-label)' }}
           >
-            {chord.startFret}fr
+            {fi + 1}
           </text>
-        )}
+        ))}
 
-        {/* Nut (thick bar at top if startFret===1) */}
-        {chord.startFret === 1 && (
-          <rect
-            x={leftPad}
-            y={topPad}
-            width={stringCount * cellW - 2}
-            height={isLarge ? 4 : 3}
-            fill="#c9b372"
-            rx={1}
-          />
-        )}
+        {/* Nut (thick bar at the top — every diagram is nut-anchored) */}
+        <rect
+          x={leftPad}
+          y={topPad}
+          width={stringCount * cellW - 2}
+          height={isLarge ? 4 : 3}
+          fill="#c9b372"
+          rx={1}
+        />
 
         {/* Fret lines */}
         {Array.from({ length: FRET_ROWS + 1 }, (_, fi) => (
@@ -130,10 +144,10 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
           return null;
         })}
 
-        {/* Barre bar */}
+        {/* Barre bar — drawn at its absolute fret */}
         {chord.barre && (() => {
           const b = chord.barre;
-          const fi = b.fret - chord.startFret;
+          const fi = b.fret - 1;
           if (fi < 0 || fi >= FRET_ROWS) return null;
 
           // fromString/toString: guitar string numbers (1=thinnest, N=thickest)
@@ -157,10 +171,10 @@ export default function ChordDiagram({ chord, isSelected, onClick, size = 'small
           );
         })()}
 
-        {/* Finger dots */}
+        {/* Finger dots — positioned at absolute fret rows */}
         {chord.strings.map((fret, si) => {
           if (fret <= 0) return null;
-          const fi = fret - chord.startFret;
+          const fi = fret - 1;
           if (fi < 0 || fi >= FRET_ROWS) return null;
 
           const finger = chord.fingers[si];
