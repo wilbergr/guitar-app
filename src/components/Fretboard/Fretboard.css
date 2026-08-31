@@ -76,10 +76,18 @@
   touch-action: manipulation;
 }
 
-/* Dead/muted-string toggle hit zone (left of the nut). */
+/* Dead/muted-string toggle hit zone (left of the nut). The green open circle
+   is now the resting glyph, so a faint hover/focus fill keeps the zone reading
+   as tappable (CSS `fill` overrides the inline fill="transparent"). */
 .mute-toggle {
   cursor: pointer;
   touch-action: manipulation;
+  rx: 4px;
+}
+
+.mute-toggle:hover {
+  fill: var(--accent);
+  fill-opacity: 0.14;
 }
 
 .mute-toggle:focus-visible {

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Pencil, Play, Circle, X, Square, SquareCheck } from 'lucide-react';
+import { Pencil, Play, Circle, X } from 'lucide-react';
 import './Fretboard.css';
 import GuitarString from './GuitarString';
 import { TUNINGS } from '../../data/tunings';
@@ -203,6 +203,19 @@ export default function Fretboard({
           // Interactive pressed fret (learn mode)
           const pressedFret = pressedFrets ? pressedFrets.get(si) : undefined;
 
+          // Nut glyph resolution (matches ChordDiagram's vocabulary): a string
+          // that carries a board dot is "fretted" and shows no nut glyph; every
+          // other string shows a red X when muted or a green open Circle
+          // otherwise (open is the default resting state). A user press overrides
+          // chord data; in edit mode a chord's own -1 also reads as muted.
+          const isFretted = placementMode
+            ? placedFret !== undefined && placedFret > 0
+            : pressedFret !== undefined
+              ? pressedFret > 0
+              : !!selectedChord && selectedFret !== undefined && selectedFret > 0;
+          const isMutedGlyph = isMuted
+            || (!placementMode && pressedFret === undefined && !!selectedChord && selectedFret === -1);
+
           return (
             <g key={si}>
               {/* String label */}
@@ -216,21 +229,24 @@ export default function Fretboard({
                 {strings[si]}
               </text>
 
-              {/* Nut indicator — priority: user dead/muted checkbox (ticked) >
-                  chord open/mute glyph > an empty "tap to mute" checkbox
-                  affordance when the mute toggle is interactive. The mute control
-                  reads as a small checkbox (empty box → ticked box) in both the
-                  learn area and the placement challenge. */}
-              {isMuted ? (
-                <SquareCheck x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
+              {/* Nut indicator. In the interactive modes (edit / placement) the
+                  glyph uses the chord-diagram vocabulary: a fretted string shows
+                  nothing, a muted string a red X, and every other string a green
+                  open Circle (the default resting state, which is also the tap
+                  target). Play mode is static and reflects only what the selected
+                  chord specifies. */}
+              {muteInteractive ? (
+                isFretted ? null : isMutedGlyph ? (
+                  <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
+                ) : (
+                  <Circle x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--success)', pointerEvents: 'none' }} aria-hidden="true" />
+                )
               ) : selectedChord && selectedFret !== undefined ? (
                 selectedFret === 0 ? (
                   <Circle x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--success)', pointerEvents: 'none' }} aria-hidden="true" />
                 ) : selectedFret === -1 ? (
                   <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
                 ) : null
-              ) : muteInteractive ? (
-                <Square x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--text-faint)', opacity: 0.5, pointerEvents: 'none' }} aria-hidden="true" />
               ) : null}
 
               {/* Dead/muted-string toggle. Transparent hit zone on top of the nut
@@ -245,7 +261,7 @@ export default function Fretboard({
                   fill="transparent"
                   role="button"
                   tabIndex={0}
-                  aria-label={`${strings[si]} string, ${isMuted ? 'muted, tap to unmute' : 'tap to mute'}`}
+                  aria-label={`${strings[si]} string, ${isMuted ? 'muted, tap to open' : 'open, tap to mute'}`}
                   aria-pressed={isMuted}
                   onClick={() => onToggleMute && onToggleMute(si)}
                   onKeyDown={(e) => handleMuteKeyDown(e, si)}
@@ -339,7 +355,7 @@ export default function Fretboard({
       {!placementMode && (
         <p className="fretboard-mode-hint">
           {editMode
-            ? 'Edit: tap a fret to place a marker · tick a string’s box by the nut to mute it'
+            ? 'Edit: tap a fret to place a marker · tap a string’s nut symbol to toggle open (○) and muted (✕)'
             : 'Play: tap a fret — or a marked/open string — to pluck it'}
         </p>
       )}
