@@ -7,7 +7,7 @@ import {
 import './ChordChallenge.css';
 import ChordDiagram from '../ChordDiagram/ChordDiagram';
 import Fretboard from '../Fretboard/Fretboard';
-import { getChordsForInstrument, getDecoyChords } from '../../services/chordUtils';
+import { getChordsForDifficulty, getDecoyChords, DIFFICULTY_TYPES } from '../../services/chordUtils';
 import { TUNINGS } from '../../data/tunings';
 import audioService from '../../services/audioService';
 
@@ -37,11 +37,23 @@ function shuffleArray(arr) {
   return a;
 }
 
-function buildQuestion(instrument) {
-  const pool = getChordsForInstrument(instrument);
+// Difficulty selector metadata (label + one-line hint), rendered on the setup
+// screen. Order is the display order. 'medium' is the default (see state init).
+const DIFFICULTIES = [
+  { id: 'easy', label: 'Easy', hint: 'Major chords only' },
+  { id: 'medium', label: 'Medium', hint: 'Major + minor chords' },
+  { id: 'hard', label: 'Hard', hint: 'All types, including 7ths' },
+];
+
+function buildQuestion(instrument, difficulty) {
+  const pool = getChordsForDifficulty(instrument, difficulty);
   if (pool.length === 0) return null;
   const correct = pool[Math.floor(Math.random() * pool.length)];
-  const decoys = getDecoyChords(instrument, correct.id, correct.type, 3);
+  // Decoys are drawn same-type first; the difficulty's allowed types cap the
+  // fallback so wrong answers never leak harder material than the mode allows.
+  const decoys = getDecoyChords(
+    instrument, correct.id, correct.type, 3, DIFFICULTY_TYPES[difficulty],
+  );
   const options = shuffleArray([correct, ...decoys]);
   return { correct, options };
 }
@@ -57,6 +69,7 @@ const SCREEN = {
 export default function ChordChallenge({ instrument, onExit, ensureAudioReady, orientation = 'landscape' }) {
   const [screen, setScreen] = useState(SCREEN.SELECT_TYPE);
   const [challengeType, setChallengeType] = useState('diagram'); // 'diagram' | 'placement'
+  const [difficulty, setDifficulty] = useState('medium'); // 'easy' | 'medium' | 'hard'
   const [isPractice, setIsPractice] = useState(true);
 
   // Question state
@@ -87,7 +100,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
   }, []);
 
   const loadQuestion = useCallback(() => {
-    const q = buildQuestion(instrument);
+    const q = buildQuestion(instrument, difficulty);
     setQuestion(q);
     setAnswered(false);
     setSelectedOptionId(null);
@@ -98,14 +111,14 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     setPaused(false);
     roundStartTime.current = Date.now();
     if (!isPractice) setTimeLeft(TIME_PER_ROUND);
-  }, [instrument, isPractice]);
+  }, [instrument, isPractice, difficulty]);
 
   const startChallenge = useCallback((practice) => {
     setIsPractice(practice);
     setRound(0);
     setResults({ correct: 0, wrong: 0, times: [], history: [] });
     setScreen(SCREEN.QUESTION);
-    const q = buildQuestion(instrument);
+    const q = buildQuestion(instrument, difficulty);
     setQuestion(q);
     setAnswered(false);
     setSelectedOptionId(null);
@@ -116,7 +129,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     setPaused(false);
     roundStartTime.current = Date.now();
     if (!practice) setTimeLeft(TIME_PER_ROUND);
-  }, [instrument]);
+  }, [instrument, difficulty]);
 
   // Timer for timed mode
   useEffect(() => {
@@ -319,6 +332,26 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
               ? (<><BarChart3 className="inline-icon" aria-hidden="true" /> Diagram Recognition</>)
               : (<><Guitar className="inline-icon" aria-hidden="true" /> Fretboard Placement</>)}
           </h2>
+          <div className="difficulty-select" role="group" aria-label="Choose difficulty">
+            <span className="difficulty-select-label">Difficulty</span>
+            <div className="difficulty-buttons">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  className={`difficulty-btn${difficulty === d.id ? ' active' : ''}`}
+                  aria-pressed={difficulty === d.id}
+                  onClick={() => setDifficulty(d.id)}
+                >
+                  <span className="difficulty-btn-label">{d.label}</span>
+                  <span className="difficulty-btn-hint">{d.hint}</span>
+                </button>
+              ))}
+            </div>
+            <p className="difficulty-riddle-note">
+              <Lock className="inline-icon" aria-hidden="true" /> The bonus riddle unlocks at 90%+ on Medium or Hard.
+            </p>
+          </div>
           <p>Choose your mode:</p>
           <div className="mode-buttons">
             <button className="btn btn-secondary mode-btn practice" onClick={() => startChallenge(true)}>
@@ -342,6 +375,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
   if (screen === SCREEN.RESULTS) {
     const passed = accuracy >= PASS_THRESHOLD;
     const showCode = challengeConfig?.chordChallengeCode && accuracy >= 0.9;
+    // Riddle gate (captain-decided): only Medium/Hard runs at >= 90% accuracy
+    // reveal the riddle. Easy never unlocks it. This is deliberately stricter
+    // than the separate unlock-code gate (any difficulty at 90%) — see PR notes.
+    const riddleUnlocked = difficulty !== 'easy' && accuracy >= 0.9;
 
     return (
       <div className="chord-challenge">
@@ -415,16 +452,27 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
             </div>
           )}
           {CHALLENGE_RIDDLES[challengeType] && (
-            <div className="challenge-riddle">
-              <span className="challenge-riddle-label">
-                <Target className="inline-icon" aria-hidden="true" /> A riddle for finishing
-              </span>
-              <p className="challenge-riddle-text">{CHALLENGE_RIDDLES[challengeType].riddle}</p>
-              <span className="challenge-riddle-padlock">
-                <Lock className="inline-icon" aria-hidden="true" />
-                Pink padlock — combine this answer with the other Chord Challenge riddle&apos;s answer (this one first) for the full 4-digit code.
-              </span>
-            </div>
+            riddleUnlocked ? (
+              <div className="challenge-riddle">
+                <span className="challenge-riddle-label">
+                  <Unlock className="inline-icon" aria-hidden="true" /> A riddle for finishing
+                </span>
+                <p className="challenge-riddle-text">{CHALLENGE_RIDDLES[challengeType].riddle}</p>
+                <span className="challenge-riddle-padlock">
+                  <Lock className="inline-icon" aria-hidden="true" />
+                  Pink padlock — combine this answer with the other Chord Challenge riddle&apos;s answer (this one first) for the full 4-digit code.
+                </span>
+              </div>
+            ) : (
+              <div className="challenge-riddle locked">
+                <span className="challenge-riddle-label">
+                  <Lock className="inline-icon" aria-hidden="true" /> Riddle locked
+                </span>
+                <p className="challenge-riddle-text">
+                  Score 90% or better on Medium or Hard to unlock a riddle. (Easy never unlocks it.)
+                </p>
+              </div>
+            )
           )}
           <div className="results-actions">
             <button className="btn btn-primary result-btn primary" onClick={() => startChallenge(!isPractice)}>
