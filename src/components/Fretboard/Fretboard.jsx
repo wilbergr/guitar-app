@@ -25,7 +25,7 @@ const DOUBLE_MARKER_FRET = 12;
 
 const TOTAL_FRETS = 12;
 const FRET_WIDTH_MIN = 50;
-const LEFT_MARGIN = 48; // space for string labels
+const LEFT_MARGIN = 56; // space for string labels + gap before the nut glyph
 const RIGHT_MARGIN = 20;
 const TOP_MARGIN = 40;  // space for open/muted indicators
 const BOTTOM_MARGIN = 30;
@@ -224,9 +224,13 @@ export default function Fretboard({
 
           return (
             <g key={si}>
-              {/* String label */}
+              {/* String label. Anchored well left of the nut glyph (box starts
+                  at nutX - 6) and clear of the mute-toggle hit rect (starts at
+                  nutX - 12): the label's right edge at nutX - 18 leaves a ~12px
+                  visual gap so the name and the open/muted indicator read as two
+                  distinct things and a click on the name never toggles the mute. */}
               <text
-                x={nutX - 4}
+                x={nutX - 18}
                 y={y + 4}
                 textAnchor="end"
                 fontSize={11}
