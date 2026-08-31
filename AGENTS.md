@@ -42,6 +42,25 @@ the selected chord's open/mute glyphs. The mute toggle is a keyboard-operable SV
 `role="button"` (`.mute-toggle`, with a hover/focus fill cue in `Fretboard.css`) carrying
 `aria-pressed`/`aria-label`, mirroring the fret-cell a11y pattern.
 
+## Placement challenge wrong-answer reveal (GuitarString.jsx + Fretboard.jsx)
+
+After a wrong Fretboard-Placement submit, `ChordChallenge` passes `correctFingers`
+(a full `si → fret` map, `0`=open / `-1`=muted / `N`=fretted) only on a wrong answer;
+its presence is the reveal signal. The reveal encodes right-vs-wrong with **shape/weight,
+not colour alone** (survives colour-blindness and dim screens):
+- **Hit** (player placed the correct fret): solid green disc + white `✓` (`isHitMarker`).
+- **Missed correct fret**: bold hollow green ring, thick stroke (`isAnswerMarker`) — dominant.
+- **Player's wrong fret**: dim, dashed, translucent orange "ghost" (`isGhostMarker`) — recessive.
+A correct placement becomes the hit marker (no orange dot, no ghost), so a right guess is
+visibly distinct from a missed answer. At the **nut**, `Fretboard` computes `placementReveal`
+(`placementMode && !!correctFingers`) and shows the **correct** open/muted glyph boldly
+(green ○ / red ✕; a should-be-fretted string shows no bold nut glyph — its green ring is on
+the board), with the player's differing open/muted choice drawn as a dim ghost glyph stacked
+above (`ghostY`). A fully-correct submit passes `correctFingers={null}`, so none of this
+renders. All markers keep `.fret-dot`/`.fret-cell-label` (`pointer-events:none`) and are
+painted before the hit rect (see the SVG hit-testing note); the reveal works unchanged in
+portrait (CSS-rotated SVG). Feedback copy lives in `ChordChallenge.jsx` `.placement-feedback`.
+
 ## Audio gating & transient UI (App.jsx)
 
 Audio needs a first user gesture. State is a tri-state `audioStatus` ('idle' → 'pending' → 'ready'); `audioReady` is derived (`=== 'ready'`). `ensureAudioReady()` early-returns while `'pending'` so concurrent taps don't spawn a second `Tone.start()`/sampler build. The learn-view banner renders an explicit **Enable sound** primary button (disabled + spinner while pending); it also still initializes on first chord/string tap. Two transient cues use the shared `components/Toast` (purely visual, `aria-hidden`): a "Sound enabled" success toast on ready, and a "board cleared" toast on instrument switch. Both are paired with `sr-only` `aria-live` regions in App.jsx for assistive-tech parity — the toasts themselves must stay `aria-hidden` to avoid double announcements. Toast auto-dismiss timers live in effects keyed on the toast state (timeout-only setState) — don't call setState synchronously in those effects (the `react-hooks` lint rule flags cascading renders).
