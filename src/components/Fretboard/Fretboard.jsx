@@ -206,6 +206,23 @@ export default function Fretboard({
           // Placement mode: get user placed value
           const placedFret = placedFingers ? placedFingers.get(si) : undefined;
           const correctFret = correctFingers ? correctFingers.get(si) : undefined;
+          // Placement reveal (wrong submit): the nut must show the *correct*
+          // open/muted state boldly, with the player's differing choice kept as a
+          // dim "ghost" so they can read the delta. `correctFingers` carries an
+          // entry for every string only during the reveal.
+          const placementReveal = placementMode && !!correctFingers;
+          const correctOpenNut = correctFret === 0;
+          const correctMutedNut = correctFret === -1;
+          const hasBoldNut = correctOpenNut || correctMutedNut; // fretted => bold dot on board
+          // Player's own nut choice (fretted strings show no nut glyph — their
+          // wrong fret already appears as a ghost dot on the board).
+          const playerOpenNut = placedFret === undefined || placedFret === 0;
+          const playerMutedNut = placedFret === -1;
+          const showGhostMuted = placementReveal && playerMutedNut && !correctMutedNut;
+          const showGhostOpen = placementReveal && playerOpenNut && !correctOpenNut;
+          // Stack the ghost above the bold correct glyph when both are present;
+          // otherwise the ghost sits at the nut centre.
+          const ghostY = hasBoldNut ? y - 19 : y - 6;
           // Interactive pressed fret (learn mode)
           const pressedFret = pressedFrets ? pressedFrets.get(si) : undefined;
 
@@ -245,7 +262,26 @@ export default function Fretboard({
                   open Circle (the default resting state, which is also the tap
                   target). Play mode is static and reflects only what the selected
                   chord specifies. */}
-              {diagramNut ? (
+              {placementReveal ? (
+                <>
+                  {/* Bold correct open/muted glyph. A string that should be
+                      fretted shows no bold nut glyph — its green marker is on the
+                      board. */}
+                  {correctMutedNut && (
+                    <X x={nutX - 7} y={y - 7} width={14} height={14} strokeWidth={3} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
+                  )}
+                  {correctOpenNut && (
+                    <Circle x={nutX - 7} y={y - 7} width={14} height={14} strokeWidth={3} style={{ color: 'var(--success)', pointerEvents: 'none' }} aria-hidden="true" />
+                  )}
+                  {/* Dim "ghost" of the player's differing open/muted choice. */}
+                  {showGhostMuted && (
+                    <X x={nutX - 5} y={ghostY} width={10} height={10} style={{ color: 'var(--danger)', opacity: 0.4, pointerEvents: 'none' }} aria-hidden="true" />
+                  )}
+                  {showGhostOpen && (
+                    <Circle x={nutX - 5} y={ghostY} width={10} height={10} style={{ color: 'var(--success)', opacity: 0.4, pointerEvents: 'none' }} aria-hidden="true" />
+                  )}
+                </>
+              ) : diagramNut ? (
                 isFretted ? null : isMutedGlyph ? (
                   <X x={nutX - 6} y={y - 6} width={12} height={12} style={{ color: 'var(--danger)', pointerEvents: 'none' }} aria-hidden="true" />
                 ) : (

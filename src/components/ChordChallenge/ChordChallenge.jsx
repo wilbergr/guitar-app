@@ -622,7 +622,7 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
               <div className={`placement-feedback ${placementCorrect ? 'correct' : 'wrong'}`}>
                 {placementCorrect
                   ? (<><Check className="inline-icon" aria-hidden="true" /> Correct!</>)
-                  : (<><X className="inline-icon" aria-hidden="true" /> Wrong — correct positions shown in green</>)}
+                  : (<><X className="inline-icon" aria-hidden="true" /> Wrong — the correct answer is bold green (✓ = you got it, ring = you missed it); your wrong guesses are faded</>)}
               </div>
             ) : (
               <button
