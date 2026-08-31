@@ -93,6 +93,27 @@ says the shape serves both. They never collide in Diagram Recognition because
 fallback). Ukulele sevenths are standard 4-note GCEA voicings; the re-entrant G4 string
 means "spells the chord" is about pitch classes present, not stacked order.
 
+## Chord Challenge difficulty & riddle gating (ChordChallenge.jsx + chordUtils.js)
+
+The challenge has three difficulty tiers keyed on chord `type`, defined once in
+`chordUtils.DIFFICULTY_TYPES` (`easy`=major, `medium`=+minor, `hard`=all five types).
+`getChordsForDifficulty(instrument, difficulty)` is the sole target-chord pool; `buildQuestion`
+passes the tier's allowed types to `getDecoyChords` as its `allowedTypes` fallback so a wrong
+answer can never leak a type outside the active tier. There is **no `power` type** in
+`chords.js` anymore — bass "power chord" shapes are typed `major`/`minor` (so bass has real
+minor chords and medium ≠ easy); the `power` strings surviving in `ChordList/ChordDiagram`
+label maps are dead entries. Per-instrument pool sizes are uniform: easy=7, medium=14, hard=35
+on all three instruments, so every tier builds a full 4-option round.
+
+Difficulty is component state (default `medium`), selected on the `SELECT_MODE` setup screen;
+it must stay in the dep arrays of `loadQuestion`/`startChallenge`. The easter-egg riddle on the
+results screen is gated by `riddleUnlocked = difficulty !== 'easy' && accuracy >= 0.9` and
+applies to **both** challenge types; when locked it renders a `.challenge-riddle.locked`
+message telling the player how to unlock, revealing **no** riddle text. This is deliberately
+stricter than the separate `challengeConfig.chordChallengeCode` reward (still `accuracy >= 0.9`
+at any difficulty) — the two gates are intentionally not aligned; don't "fix" one to match the
+other without a captain decision.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.

@@ -76,6 +76,75 @@
   justify-content: center;
 }
 
+/* Difficulty selector on the setup screen. Segmented set of buttons; the
+   active tier is filled with the accent color. */
+.difficulty-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.difficulty-select-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.difficulty-buttons {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.difficulty-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 8rem;
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.difficulty-btn:hover {
+  border-color: var(--accent);
+}
+
+.difficulty-btn.active {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
+.difficulty-btn-label {
+  font-weight: 600;
+}
+
+.difficulty-btn.active .difficulty-btn-label {
+  color: var(--accent);
+}
+
+.difficulty-btn-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.difficulty-riddle-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
 /* Reward teaser on the mode-select screen — advertises the locked reward
    before it is earned without revealing the code. */
 .reward-teaser {
@@ -461,6 +530,18 @@
 
 .challenge-riddle-padlock .inline-icon {
   color: var(--pink);
+}
+
+/* Locked state — shown in place of the riddle when the run did not qualify
+   (easy at any score, or medium/hard below 90%). Reveals no riddle text. */
+.challenge-riddle.locked {
+  border-style: solid;
+  opacity: 0.9;
+}
+
+.challenge-riddle.locked .challenge-riddle-text {
+  font-style: normal;
+  color: var(--text-muted);
 }
 
 /* Per-question round review */
