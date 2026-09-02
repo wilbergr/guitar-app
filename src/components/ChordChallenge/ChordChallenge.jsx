@@ -87,17 +87,8 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
   const [placementCorrect, setPlacementCorrect] = useState(null);
   const [correctFingers, setCorrectFingers] = useState(null);
 
-  // Challenge config
-  const [challengeConfig, setChallengeConfig] = useState(null);
   const roundStartTime = useRef(null);
   const timerRef = useRef(null);
-
-  useEffect(() => {
-    fetch('challenge-config.json')
-      .then((r) => r.json())
-      .then(setChallengeConfig)
-      .catch(() => {});
-  }, []);
 
   const loadQuestion = useCallback(() => {
     const q = buildQuestion(instrument, difficulty);
@@ -287,8 +278,6 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
     ? Math.round(results.times.reduce((a, b) => a + b, 0) / results.times.length / 100) / 10
     : 0;
 
-  const hasCodeReward = !!challengeConfig?.chordChallengeCode;
-
   // The placement fretboard's mute state is derived from placedFingers (a string
   // is muted when its value is -1) so there is one source of truth. The shared
   // Fretboard nut checkbox toggles this via onToggleMute={handleMuteToggle}.
@@ -361,11 +350,6 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
               <Timer aria-hidden="true" /> Challenge ({TOTAL_ROUNDS} rounds, {TIME_PER_ROUND}s each)
             </button>
           </div>
-          {hasCodeReward && (
-            <p className="reward-teaser">
-              <Lock className="inline-icon" aria-hidden="true" /> Score {Math.round(0.9 * 100)}%+ in Challenge mode to unlock a bonus code.
-            </p>
-          )}
           <button className="btn btn-ghost back-btn" onClick={() => setScreen(SCREEN.SELECT_TYPE)}><ArrowLeft aria-hidden="true" /> Back</button>
         </div>
       </div>
@@ -374,10 +358,10 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
 
   if (screen === SCREEN.RESULTS) {
     const passed = accuracy >= PASS_THRESHOLD;
-    const showCode = challengeConfig?.chordChallengeCode && accuracy >= 0.9;
     // Riddle gate (captain-decided): only Medium/Hard runs at >= 90% accuracy
-    // reveal the riddle. Easy never unlocks it. This is deliberately stricter
-    // than the separate unlock-code gate (any difficulty at 90%) — see PR notes.
+    // reveal the riddle. Easy never unlocks it. This is the sole results-screen
+    // reward — the separate unlock-code reward was removed by captain decision
+    // on 2026-09-01 (see AGENTS.md).
     const riddleUnlocked = difficulty !== 'easy' && accuracy >= 0.9;
 
     return (
@@ -412,17 +396,6 @@ export default function ChordChallenge({ instrument, onExit, ensureAudioReady, o
               </span>
             </div>
           </div>
-          {showCode ? (
-            <div className="unlock-code">
-              <Unlock className="inline-icon" aria-hidden="true" /> Unlock Code:
-              <strong>{challengeConfig.chordChallengeCode}</strong>
-            </div>
-          ) : hasCodeReward && (
-            <div className="unlock-hint">
-              <Lock className="inline-icon" aria-hidden="true" />
-              Score {Math.round(0.9 * 100)}%+ to unlock a bonus code.
-            </div>
-          )}
           {results.history.length > 0 && (
             <div className="results-review">
               <h3>Round Review</h3>

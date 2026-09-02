@@ -65,9 +65,20 @@ portrait (CSS-rotated SVG). Feedback copy lives in `ChordChallenge.jsx` `.placem
 
 Audio needs a first user gesture. State is a tri-state `audioStatus` ('idle' → 'pending' → 'ready'); `audioReady` is derived (`=== 'ready'`). `ensureAudioReady()` early-returns while `'pending'` so concurrent taps don't spawn a second `Tone.start()`/sampler build. The learn-view banner renders an explicit **Enable sound** primary button (disabled + spinner while pending); it also still initializes on first chord/string tap. Two transient cues use the shared `components/Toast` (purely visual, `aria-hidden`): a "Sound enabled" success toast on ready, and a "board cleared" toast on instrument switch. Both are paired with `sr-only` `aria-live` regions in App.jsx for assistive-tech parity — the toasts themselves must stay `aria-hidden` to avoid double announcements. Toast auto-dismiss timers live in effects keyed on the toast state (timeout-only setState) — don't call setState synchronously in those effects (the `react-hooks` lint rule flags cascading renders).
 
-## Chord Challenge reward config (`public/challenge-config.json`)
+## Chord Challenge reward: riddle only (unlock-code removed 2026-09-01)
 
-The ≥90% reward code lives in `challenge-config.json` (fetched at runtime, relative to the document — resolves under the `/guitar-app/` base). The **committed** copy has `chordChallengeCode: ""` (empty); the real code is injected at deploy time. Because the code is empty locally, `hasCodeReward` (`!!challengeConfig?.chordChallengeCode`) is false, so the reward teaser/locked-hint/unlock-code UI in `ChordChallenge.jsx` will **not** render in dev/preview unless you temporarily set a non-empty code in the served copy (edit the gitignored `dist/challenge-config.json`, not `public/`, to avoid committing a code).
+The Chord Challenge results screen has **one** reward: the easter-egg riddle (see the
+difficulty/riddle-gating section below). The separate **unlock-code reward**
+(`challengeConfig.chordChallengeCode` fetched from `public/challenge-config.json`, with its
+`hasCodeReward`/`showCode`/teaser/locked-hint/unlock-code UI) was **removed by captain decision
+on 2026-09-01** — it was a second, weaker path to a reward and is not wanted. Do **not**
+reintroduce it: `ChordChallenge.jsx` no longer reads any config, and there is no
+`chordChallengeCode`/`hasCodeReward`/`showCode`/`challengeConfig` reference in `src/`.
+
+`public/challenge-config.json` (holding empty `code`/`chordChallengeCode`) is **intentionally
+left in place** despite having no in-repo reader: this deploys to Cloudflare Pages and an
+external, out-of-repo step may still write the file at deploy time. Retiring that file is a
+captain-owned follow-up, to be done only once nothing external depends on it.
 
 ## `useCallback` dependency arrays are evaluated during render (TDZ gotcha)
 
@@ -128,10 +139,9 @@ Difficulty is component state (default `medium`), selected on the `SELECT_MODE` 
 it must stay in the dep arrays of `loadQuestion`/`startChallenge`. The easter-egg riddle on the
 results screen is gated by `riddleUnlocked = difficulty !== 'easy' && accuracy >= 0.9` and
 applies to **both** challenge types; when locked it renders a `.challenge-riddle.locked`
-message telling the player how to unlock, revealing **no** riddle text. This is deliberately
-stricter than the separate `challengeConfig.chordChallengeCode` reward (still `accuracy >= 0.9`
-at any difficulty) — the two gates are intentionally not aligned; don't "fix" one to match the
-other without a captain decision.
+message telling the player how to unlock, revealing **no** riddle text. This is the **sole**
+results-screen reward — the separate unlock-code reward was removed by captain decision on
+2026-09-01 (see "Chord Challenge reward: riddle only" above); do not reintroduce a second gate.
 
 ## Maintaining this file
 
