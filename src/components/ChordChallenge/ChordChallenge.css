@@ -145,21 +145,6 @@
   margin: 0;
 }
 
-/* Reward teaser on the mode-select screen — advertises the locked reward
-   before it is earned without revealing the code. */
-.reward-teaser {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: var(--surface);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-pill);
-  padding: var(--space-2) var(--space-4);
-  margin: 0;
-}
-
 /* Question screen */
 .challenge-header {
   display: flex;
@@ -450,38 +435,6 @@
 
 .result-stat .value.fail {
   color: var(--danger);
-}
-
-.unlock-code {
-  background: var(--accent-bg);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  color: var(--accent);
-  font-size: 0.9rem;
-}
-
-.unlock-code strong {
-  display: block;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 1.2rem;
-  margin-top: var(--space-2);
-  color: var(--text);
-  letter-spacing: 2px;
-}
-
-/* Locked-reward hint shown on the results screen when the code was not earned */
-.unlock-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--surface);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  color: var(--text-muted);
-  font-size: 0.85rem;
 }
 
 /* Completion easter-egg riddle (one per challenge type) */
